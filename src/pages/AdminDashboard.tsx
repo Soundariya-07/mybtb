@@ -243,123 +243,126 @@ const AdminDashboard = () => {
                     </Button>
                   </div>
                 </div>
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              </CardHeader>
+              <CardContent>
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
                   <TabsList className="bg-chess-deepNavy grid w-full md:w-auto md:inline-flex grid-cols-3">
                     <TabsTrigger value="students">Students</TabsTrigger>
                     <TabsTrigger value="coaches">Coaches</TabsTrigger>
                     <TabsTrigger value="classes">Classes</TabsTrigger>
                   </TabsList>
+                  
+                  <TabsContent value="students" className="mt-4">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="hover:bg-chess-deepNavy/60">
+                          <TableHead>Name</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Join Date</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredStudents.map(student => (
+                          <TableRow key={student.id} className="hover:bg-chess-deepNavy/60">
+                            <TableCell className="font-medium">{student.name}</TableCell>
+                            <TableCell>{student.email}</TableCell>
+                            <TableCell>
+                              <span className={`px-2 py-1 rounded-full text-xs ${
+                                student.status === 'Active' 
+                                  ? 'bg-green-900/20 text-green-400' 
+                                  : 'bg-amber-900/20 text-amber-400'
+                              }`}>
+                                {student.status}
+                              </span>
+                            </TableCell>
+                            <TableCell>{new Date(student.joinDate).toLocaleDateString()}</TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <UserCog className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TabsContent>
+                  
+                  <TabsContent value="coaches" className="mt-4">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="hover:bg-chess-deepNavy/60">
+                          <TableHead>Name</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Specialization</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Join Date</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredCoaches.map(coach => (
+                          <TableRow key={coach.id} className="hover:bg-chess-deepNavy/60">
+                            <TableCell className="font-medium">{coach.name}</TableCell>
+                            <TableCell>{coach.email}</TableCell>
+                            <TableCell>{coach.specialization}</TableCell>
+                            <TableCell>
+                              <span className="px-2 py-1 rounded-full text-xs bg-green-900/20 text-green-400">
+                                {coach.status}
+                              </span>
+                            </TableCell>
+                            <TableCell>{new Date(coach.joinDate).toLocaleDateString()}</TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <UserCog className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TabsContent>
+                  
+                  <TabsContent value="classes" className="mt-4">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="hover:bg-chess-deepNavy/60">
+                          <TableHead>Class Name</TableHead>
+                          <TableHead>Coach</TableHead>
+                          <TableHead>Students</TableHead>
+                          <TableHead>Schedule</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredClasses.map(cls => (
+                          <TableRow key={cls.id} className="hover:bg-chess-deepNavy/60">
+                            <TableCell className="font-medium">{cls.name}</TableCell>
+                            <TableCell>{cls.coach}</TableCell>
+                            <TableCell>{cls.students}</TableCell>
+                            <TableCell>{cls.schedule}</TableCell>
+                            <TableCell>
+                              <span className={`px-2 py-1 rounded-full text-xs ${
+                                cls.status === 'Active' 
+                                  ? 'bg-green-900/20 text-green-400' 
+                                  : 'bg-amber-900/20 text-amber-400'
+                              }`}>
+                                {cls.status}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <UserCog className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TabsContent>
                 </Tabs>
-              </CardHeader>
-              <CardContent>
-                <TabsContent value="students" className="mt-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="hover:bg-chess-deepNavy/60">
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Join Date</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredStudents.map(student => (
-                        <TableRow key={student.id} className="hover:bg-chess-deepNavy/60">
-                          <TableCell className="font-medium">{student.name}</TableCell>
-                          <TableCell>{student.email}</TableCell>
-                          <TableCell>
-                            <span className={`px-2 py-1 rounded-full text-xs ${
-                              student.status === 'Active' 
-                                ? 'bg-green-900/20 text-green-400' 
-                                : 'bg-amber-900/20 text-amber-400'
-                            }`}>
-                              {student.status}
-                            </span>
-                          </TableCell>
-                          <TableCell>{new Date(student.joinDate).toLocaleDateString()}</TableCell>
-                          <TableCell className="text-right">
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <UserCog className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TabsContent>
-                <TabsContent value="coaches" className="mt-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="hover:bg-chess-deepNavy/60">
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Specialization</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Join Date</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredCoaches.map(coach => (
-                        <TableRow key={coach.id} className="hover:bg-chess-deepNavy/60">
-                          <TableCell className="font-medium">{coach.name}</TableCell>
-                          <TableCell>{coach.email}</TableCell>
-                          <TableCell>{coach.specialization}</TableCell>
-                          <TableCell>
-                            <span className="px-2 py-1 rounded-full text-xs bg-green-900/20 text-green-400">
-                              {coach.status}
-                            </span>
-                          </TableCell>
-                          <TableCell>{new Date(coach.joinDate).toLocaleDateString()}</TableCell>
-                          <TableCell className="text-right">
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <UserCog className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TabsContent>
-                <TabsContent value="classes" className="mt-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="hover:bg-chess-deepNavy/60">
-                        <TableHead>Class Name</TableHead>
-                        <TableHead>Coach</TableHead>
-                        <TableHead>Students</TableHead>
-                        <TableHead>Schedule</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredClasses.map(cls => (
-                        <TableRow key={cls.id} className="hover:bg-chess-deepNavy/60">
-                          <TableCell className="font-medium">{cls.name}</TableCell>
-                          <TableCell>{cls.coach}</TableCell>
-                          <TableCell>{cls.students}</TableCell>
-                          <TableCell>{cls.schedule}</TableCell>
-                          <TableCell>
-                            <span className={`px-2 py-1 rounded-full text-xs ${
-                              cls.status === 'Active' 
-                                ? 'bg-green-900/20 text-green-400' 
-                                : 'bg-amber-900/20 text-amber-400'
-                            }`}>
-                              {cls.status}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <UserCog className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TabsContent>
               </CardContent>
             </Card>
           </main>

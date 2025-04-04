@@ -192,54 +192,56 @@ const CoachDashboard = () => {
                 <Card className="bg-chess-navy border-chess-blue/20">
                   <CardHeader>
                     <CardTitle className="text-white">Sessions</CardTitle>
-                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  </CardHeader>
+                  <CardContent>
+                    <Tabs value={activeTab} onValueChange={setActiveTab}>
                       <TabsList className="bg-chess-deepNavy grid w-full grid-cols-2">
                         <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
                         <TabsTrigger value="completed">Completed</TabsTrigger>
                       </TabsList>
+                      
+                      <TabsContent value="upcoming" className="mt-4">
+                        <div className="space-y-4">
+                          {upcomingSessions.map(session => (
+                            <div key={session.id} className="bg-chess-deepNavy p-4 rounded-lg hover:bg-chess-deepNavy/80 transition-colors cursor-pointer">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h3 className="font-medium text-white">{session.studentName}</h3>
+                                  <p className="text-sm text-gray-400">{session.topic}</p>
+                                  <div className="mt-2 text-xs text-gray-400">
+                                    {session.type} • {new Date(session.date).toLocaleDateString()} • {session.time}
+                                  </div>
+                                </div>
+                                <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                                  <ChevronRight className="h-5 w-5" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="completed" className="mt-4">
+                        <div className="space-y-4">
+                          {completedSessions.map(session => (
+                            <div key={session.id} className="bg-chess-deepNavy p-4 rounded-lg hover:bg-chess-deepNavy/80 transition-colors cursor-pointer">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h3 className="font-medium text-white">{session.studentName}</h3>
+                                  <p className="text-sm text-gray-400">{session.topic}</p>
+                                  <div className="mt-2 text-xs text-gray-400">
+                                    {session.type} • {new Date(session.date).toLocaleDateString()} • {session.time}
+                                  </div>
+                                </div>
+                                <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                                  <ChevronRight className="h-5 w-5" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </TabsContent>
                     </Tabs>
-                  </CardHeader>
-                  <CardContent>
-                    <TabsContent value="upcoming" className="mt-0">
-                      <div className="space-y-4">
-                        {upcomingSessions.map(session => (
-                          <div key={session.id} className="bg-chess-deepNavy p-4 rounded-lg hover:bg-chess-deepNavy/80 transition-colors cursor-pointer">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <h3 className="font-medium text-white">{session.studentName}</h3>
-                                <p className="text-sm text-gray-400">{session.topic}</p>
-                                <div className="mt-2 text-xs text-gray-400">
-                                  {session.type} • {new Date(session.date).toLocaleDateString()} • {session.time}
-                                </div>
-                              </div>
-                              <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
-                                <ChevronRight className="h-5 w-5" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </TabsContent>
-                    <TabsContent value="completed" className="mt-0">
-                      <div className="space-y-4">
-                        {completedSessions.map(session => (
-                          <div key={session.id} className="bg-chess-deepNavy p-4 rounded-lg hover:bg-chess-deepNavy/80 transition-colors cursor-pointer">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <h3 className="font-medium text-white">{session.studentName}</h3>
-                                <p className="text-sm text-gray-400">{session.topic}</p>
-                                <div className="mt-2 text-xs text-gray-400">
-                                  {session.type} • {new Date(session.date).toLocaleDateString()} • {session.time}
-                                </div>
-                              </div>
-                              <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
-                                <ChevronRight className="h-5 w-5" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </TabsContent>
                   </CardContent>
                 </Card>
               </div>
