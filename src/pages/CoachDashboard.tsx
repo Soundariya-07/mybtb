@@ -63,6 +63,7 @@ const CoachDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState("upcoming");
+  const [activeSection, setActiveSection] = useState("sessions");
 
   useEffect(() => {
     // Check if user is logged in as a coach
@@ -93,6 +94,10 @@ const CoachDashboard = () => {
     navigate('/');
   };
 
+  const handleNavigate = (section: string) => {
+    setActiveSection(section);
+  };
+
   if (!user) {
     return <div className="min-h-screen bg-chess-deepNavy flex items-center justify-center">
       <div className="animate-spin h-8 w-8 border-4 border-chess-blue border-t-transparent rounded-full"></div>
@@ -101,12 +106,178 @@ const CoachDashboard = () => {
 
   // Menu items for the sidebar
   const menuItems = [
-    { icon: Calendar, label: "Sessions", active: true },
-    { icon: Users, label: "Students" },
-    { icon: MessageSquare, label: "Messages" },
-    { icon: Book, label: "Demo" },
-    { icon: Settings, label: "Settings" },
+    { icon: Calendar, label: "Sessions", section: "sessions", active: activeSection === "sessions" },
+    { icon: Users, label: "Students", section: "students", active: activeSection === "students" },
+    { icon: MessageSquare, label: "Messages", section: "messages", active: activeSection === "messages" },
+    { icon: Book, label: "Demo", section: "demo", active: activeSection === "demo" },
+    { icon: Settings, label: "Settings", section: "settings", active: activeSection === "settings" },
   ];
+
+  // Render appropriate content based on active section
+  const renderContent = () => {
+    switch (activeSection) {
+      case "sessions":
+        return (
+          <Card className="bg-chess-navy border-chess-blue/20">
+            <CardHeader>
+              <CardTitle className="text-white">Sessions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="bg-chess-deepNavy grid w-full grid-cols-2">
+                  <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+                  <TabsTrigger value="completed">Completed</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="upcoming" className="mt-4">
+                  <div className="space-y-4">
+                    {upcomingSessions.map(session => (
+                      <div key={session.id} className="bg-chess-deepNavy p-4 rounded-lg hover:bg-chess-deepNavy/80 transition-colors cursor-pointer">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-medium text-white">{session.studentName}</h3>
+                            <p className="text-sm text-gray-400">{session.topic}</p>
+                            <div className="mt-2 text-xs text-gray-400">
+                              {session.type} • {new Date(session.date).toLocaleDateString()} • {session.time}
+                            </div>
+                          </div>
+                          <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                            <ChevronRight className="h-5 w-5" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="completed" className="mt-4">
+                  <div className="space-y-4">
+                    {completedSessions.map(session => (
+                      <div key={session.id} className="bg-chess-deepNavy p-4 rounded-lg hover:bg-chess-deepNavy/80 transition-colors cursor-pointer">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-medium text-white">{session.studentName}</h3>
+                            <p className="text-sm text-gray-400">{session.topic}</p>
+                            <div className="mt-2 text-xs text-gray-400">
+                              {session.type} • {new Date(session.date).toLocaleDateString()} • {session.time}
+                            </div>
+                          </div>
+                          <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                            <ChevronRight className="h-5 w-5" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        );
+      case "students":
+        return (
+          <Card className="bg-chess-navy border-chess-blue/20">
+            <CardHeader>
+              <CardTitle className="text-white">Students</CardTitle>
+              <CardDescription>Your current students</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {students.map(student => (
+                  <div key={student.id} className="bg-chess-deepNavy p-4 rounded-lg hover:bg-chess-deepNavy/80 transition-colors cursor-pointer">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium text-white">{student.name}</h3>
+                        <p className="text-sm text-gray-400">Level: {student.level}</p>
+                        <div className="mt-2 text-xs text-gray-400">
+                          Progress: {student.progress} • Next session: {student.nextSession}
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                        <ChevronRight className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      case "messages":
+        return (
+          <Card className="bg-chess-navy border-chess-blue/20">
+            <CardHeader>
+              <CardTitle className="text-white">Messages</CardTitle>
+              <CardDescription>Latest communications from students</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {messages.map(message => (
+                  <div key={message.id} className="bg-chess-deepNavy p-4 rounded-lg hover:bg-chess-deepNavy/80 transition-colors cursor-pointer">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium text-white">{message.from}</h3>
+                        <p className="text-sm text-gray-400 line-clamp-2">{message.preview}</p>
+                        <div className="mt-2 text-xs text-gray-400">{message.time}</div>
+                      </div>
+                      <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                        <ChevronRight className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      case "demo":
+        return (
+          <Card className="bg-chess-navy border-chess-blue/20">
+            <CardHeader>
+              <CardTitle className="text-white">Demo Classes</CardTitle>
+              <CardDescription>Manage your demo sessions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="p-6 text-center">
+                <h3 className="text-lg font-medium text-white mb-2">No upcoming demo classes</h3>
+                <p className="text-gray-400 mb-4">You don't have any scheduled demo classes at the moment.</p>
+                <Button className="bg-chess-blue hover:bg-chess-blue/90">Schedule a Demo</Button>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      case "settings":
+        return (
+          <Card className="bg-chess-navy border-chess-blue/20">
+            <CardHeader>
+              <CardTitle className="text-white">Account Settings</CardTitle>
+              <CardDescription>Manage your account preferences</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-medium text-white mb-2">Profile Information</h3>
+                  <p className="text-gray-400 mb-4">Update your profile details</p>
+                  <Button className="bg-chess-blue hover:bg-chess-blue/90">Edit Profile</Button>
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-white mb-2">Password</h3>
+                  <p className="text-gray-400 mb-4">Change your password</p>
+                  <Button className="bg-chess-blue hover:bg-chess-blue/90">Change Password</Button>
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-white mb-2">Notification Preferences</h3>
+                  <p className="text-gray-400 mb-4">Manage how you receive notifications</p>
+                  <Button className="bg-chess-blue hover:bg-chess-blue/90">Notification Settings</Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <SidebarProvider>
@@ -123,7 +294,10 @@ const CoachDashboard = () => {
             <SidebarMenu>
               {menuItems.map((item, index) => (
                 <SidebarMenuItem key={index}>
-                  <SidebarMenuButton isActive={item.active}>
+                  <SidebarMenuButton 
+                    isActive={item.active}
+                    onClick={() => handleNavigate(item.section)}
+                  >
                     <item.icon className="w-5 h-5" />
                     <span>{item.label}</span>
                   </SidebarMenuButton>
@@ -187,91 +361,8 @@ const CoachDashboard = () => {
               </Card>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <Card className="bg-chess-navy border-chess-blue/20">
-                  <CardHeader>
-                    <CardTitle className="text-white">Sessions</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Tabs value={activeTab} onValueChange={setActiveTab}>
-                      <TabsList className="bg-chess-deepNavy grid w-full grid-cols-2">
-                        <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-                        <TabsTrigger value="completed">Completed</TabsTrigger>
-                      </TabsList>
-                      
-                      <TabsContent value="upcoming" className="mt-4">
-                        <div className="space-y-4">
-                          {upcomingSessions.map(session => (
-                            <div key={session.id} className="bg-chess-deepNavy p-4 rounded-lg hover:bg-chess-deepNavy/80 transition-colors cursor-pointer">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <h3 className="font-medium text-white">{session.studentName}</h3>
-                                  <p className="text-sm text-gray-400">{session.topic}</p>
-                                  <div className="mt-2 text-xs text-gray-400">
-                                    {session.type} • {new Date(session.date).toLocaleDateString()} • {session.time}
-                                  </div>
-                                </div>
-                                <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
-                                  <ChevronRight className="h-5 w-5" />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="completed" className="mt-4">
-                        <div className="space-y-4">
-                          {completedSessions.map(session => (
-                            <div key={session.id} className="bg-chess-deepNavy p-4 rounded-lg hover:bg-chess-deepNavy/80 transition-colors cursor-pointer">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <h3 className="font-medium text-white">{session.studentName}</h3>
-                                  <p className="text-sm text-gray-400">{session.topic}</p>
-                                  <div className="mt-2 text-xs text-gray-400">
-                                    {session.type} • {new Date(session.date).toLocaleDateString()} • {session.time}
-                                  </div>
-                                </div>
-                                <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
-                                  <ChevronRight className="h-5 w-5" />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </TabsContent>
-                    </Tabs>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div>
-                <Card className="bg-chess-navy border-chess-blue/20">
-                  <CardHeader>
-                    <CardTitle className="text-white">Recent Messages</CardTitle>
-                    <CardDescription>Latest communications from students</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {messages.map(message => (
-                        <div key={message.id} className="bg-chess-deepNavy p-4 rounded-lg hover:bg-chess-deepNavy/80 transition-colors cursor-pointer">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h3 className="font-medium text-white">{message.from}</h3>
-                              <p className="text-sm text-gray-400 line-clamp-2">{message.preview}</p>
-                              <div className="mt-2 text-xs text-gray-400">{message.time}</div>
-                            </div>
-                            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
-                              <ChevronRight className="h-5 w-5" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+            <div className="grid grid-cols-1 gap-6">
+              {renderContent()}
             </div>
           </main>
         </div>

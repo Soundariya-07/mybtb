@@ -62,6 +62,7 @@ const StudentDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState("upcoming");
+  const [activeSection, setActiveSection] = useState("classes");
 
   useEffect(() => {
     // Check if user is logged in as a student
@@ -92,6 +93,10 @@ const StudentDashboard = () => {
     navigate('/');
   };
 
+  const handleNavigate = (section: string) => {
+    setActiveSection(section);
+  };
+
   if (!user) {
     return <div className="min-h-screen bg-chess-deepNavy flex items-center justify-center">
       <div className="animate-spin h-8 w-8 border-4 border-chess-blue border-t-transparent rounded-full"></div>
@@ -100,12 +105,172 @@ const StudentDashboard = () => {
 
   // Menu items for the sidebar
   const menuItems = [
-    { icon: Calendar, label: "Classes", active: true },
-    { icon: BookOpen, label: "Assignments" },
-    { icon: BarChart, label: "Progress" },
-    { icon: MessageSquare, label: "Messages" },
-    { icon: Settings, label: "Settings" },
+    { icon: Calendar, label: "Classes", section: "classes", active: activeSection === "classes" },
+    { icon: BookOpen, label: "Assignments", section: "assignments", active: activeSection === "assignments" },
+    { icon: BarChart, label: "Progress", section: "progress", active: activeSection === "progress" },
+    { icon: MessageSquare, label: "Messages", section: "messages", active: activeSection === "messages" },
+    { icon: Settings, label: "Settings", section: "settings", active: activeSection === "settings" },
   ];
+
+  // Render appropriate content based on active section
+  const renderContent = () => {
+    switch (activeSection) {
+      case "classes":
+        return (
+          <Card className="bg-chess-navy border-chess-blue/20">
+            <CardHeader>
+              <CardTitle className="text-white">Classes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="bg-chess-deepNavy grid w-full grid-cols-2">
+                  <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+                  <TabsTrigger value="completed">Completed</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="upcoming" className="mt-4">
+                  <div className="space-y-4">
+                    {upcomingClasses.map(session => (
+                      <div key={session.id} className="bg-chess-deepNavy p-4 rounded-lg hover:bg-chess-deepNavy/80 transition-colors cursor-pointer">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-medium text-white">{session.topic}</h3>
+                            <p className="text-sm text-gray-400">Coach: {session.coach}</p>
+                            <div className="mt-2 text-xs text-gray-400">
+                              {session.type} • {new Date(session.date).toLocaleDateString()} • {session.time}
+                            </div>
+                          </div>
+                          <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                            <ChevronRight className="h-5 w-5" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="completed" className="mt-4">
+                  <div className="space-y-4">
+                    {completedClasses.map(session => (
+                      <div key={session.id} className="bg-chess-deepNavy p-4 rounded-lg hover:bg-chess-deepNavy/80 transition-colors cursor-pointer">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-medium text-white">{session.topic}</h3>
+                            <p className="text-sm text-gray-400">Coach: {session.coach}</p>
+                            <div className="mt-2 text-xs text-gray-400">
+                              {session.type} • {new Date(session.date).toLocaleDateString()} • {session.time}
+                            </div>
+                          </div>
+                          <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                            <ChevronRight className="h-5 w-5" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        );
+      case "assignments":
+        return (
+          <Card className="bg-chess-navy border-chess-blue/20">
+            <CardHeader>
+              <CardTitle className="text-white">Assignments</CardTitle>
+              <CardDescription>Tasks from your coaches</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {assignments.map(assignment => (
+                  <div key={assignment.id} className="bg-chess-deepNavy p-4 rounded-lg hover:bg-chess-deepNavy/80 transition-colors cursor-pointer">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium text-white">{assignment.title}</h3>
+                        <div className="mt-2 text-xs text-gray-400">
+                          Due: {new Date(assignment.deadline).toLocaleDateString()}
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                        <ChevronRight className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      case "progress":
+        return (
+          <Card className="bg-chess-navy border-chess-blue/20">
+            <CardHeader>
+              <CardTitle className="text-white">Skill Progress</CardTitle>
+              <CardDescription>Your chess abilities</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {progressData.map((item, index) => (
+                  <div key={index} className="space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-300">{item.category}</span>
+                      <span className="text-gray-400">{item.score}%</span>
+                    </div>
+                    <Progress value={item.score} className="h-2" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      case "messages":
+        return (
+          <Card className="bg-chess-navy border-chess-blue/20">
+            <CardHeader>
+              <CardTitle className="text-white">Messages</CardTitle>
+              <CardDescription>Communications with your coaches</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="p-6 text-center">
+                <h3 className="text-lg font-medium text-white mb-2">No new messages</h3>
+                <p className="text-gray-400 mb-4">You don't have any unread messages at the moment.</p>
+                <Button className="bg-chess-blue hover:bg-chess-blue/90">Start a Conversation</Button>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      case "settings":
+        return (
+          <Card className="bg-chess-navy border-chess-blue/20">
+            <CardHeader>
+              <CardTitle className="text-white">Account Settings</CardTitle>
+              <CardDescription>Manage your account preferences</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-medium text-white mb-2">Profile Information</h3>
+                  <p className="text-gray-400 mb-4">Update your profile details</p>
+                  <Button className="bg-chess-blue hover:bg-chess-blue/90">Edit Profile</Button>
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-white mb-2">Password</h3>
+                  <p className="text-gray-400 mb-4">Change your password</p>
+                  <Button className="bg-chess-blue hover:bg-chess-blue/90">Change Password</Button>
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-white mb-2">Notification Preferences</h3>
+                  <p className="text-gray-400 mb-4">Manage how you receive notifications</p>
+                  <Button className="bg-chess-blue hover:bg-chess-blue/90">Notification Settings</Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <SidebarProvider>
@@ -122,7 +287,10 @@ const StudentDashboard = () => {
             <SidebarMenu>
               {menuItems.map((item, index) => (
                 <SidebarMenuItem key={index}>
-                  <SidebarMenuButton isActive={item.active}>
+                  <SidebarMenuButton 
+                    isActive={item.active} 
+                    onClick={() => handleNavigate(item.section)}
+                  >
                     <item.icon className="w-5 h-5" />
                     <span>{item.label}</span>
                   </SidebarMenuButton>
@@ -199,112 +367,8 @@ const StudentDashboard = () => {
               </Card>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <Card className="bg-chess-navy border-chess-blue/20">
-                  <CardHeader>
-                    <CardTitle className="text-white">Classes</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Tabs value={activeTab} onValueChange={setActiveTab}>
-                      <TabsList className="bg-chess-deepNavy grid w-full grid-cols-2">
-                        <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-                        <TabsTrigger value="completed">Completed</TabsTrigger>
-                      </TabsList>
-                      
-                      <TabsContent value="upcoming" className="mt-4">
-                        <div className="space-y-4">
-                          {upcomingClasses.map(session => (
-                            <div key={session.id} className="bg-chess-deepNavy p-4 rounded-lg hover:bg-chess-deepNavy/80 transition-colors cursor-pointer">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <h3 className="font-medium text-white">{session.topic}</h3>
-                                  <p className="text-sm text-gray-400">Coach: {session.coach}</p>
-                                  <div className="mt-2 text-xs text-gray-400">
-                                    {session.type} • {new Date(session.date).toLocaleDateString()} • {session.time}
-                                  </div>
-                                </div>
-                                <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
-                                  <ChevronRight className="h-5 w-5" />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="completed" className="mt-4">
-                        <div className="space-y-4">
-                          {completedClasses.map(session => (
-                            <div key={session.id} className="bg-chess-deepNavy p-4 rounded-lg hover:bg-chess-deepNavy/80 transition-colors cursor-pointer">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <h3 className="font-medium text-white">{session.topic}</h3>
-                                  <p className="text-sm text-gray-400">Coach: {session.coach}</p>
-                                  <div className="mt-2 text-xs text-gray-400">
-                                    {session.type} • {new Date(session.date).toLocaleDateString()} • {session.time}
-                                  </div>
-                                </div>
-                                <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
-                                  <ChevronRight className="h-5 w-5" />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </TabsContent>
-                    </Tabs>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div>
-                <Card className="bg-chess-navy border-chess-blue/20">
-                  <CardHeader>
-                    <CardTitle className="text-white">Assignments</CardTitle>
-                    <CardDescription>Tasks from your coaches</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {assignments.map(assignment => (
-                        <div key={assignment.id} className="bg-chess-deepNavy p-4 rounded-lg hover:bg-chess-deepNavy/80 transition-colors cursor-pointer">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h3 className="font-medium text-white">{assignment.title}</h3>
-                              <div className="mt-2 text-xs text-gray-400">
-                                Due: {new Date(assignment.deadline).toLocaleDateString()}
-                              </div>
-                            </div>
-                            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
-                              <ChevronRight className="h-5 w-5" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-chess-navy border-chess-blue/20 mt-6">
-                  <CardHeader>
-                    <CardTitle className="text-white">Skill Progress</CardTitle>
-                    <CardDescription>Your chess abilities</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {progressData.map((item, index) => (
-                        <div key={index} className="space-y-1">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-300">{item.category}</span>
-                            <span className="text-gray-400">{item.score}%</span>
-                          </div>
-                          <Progress value={item.score} className="h-2" />
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+            <div className="grid grid-cols-1 gap-6">
+              {renderContent()}
             </div>
           </main>
         </div>

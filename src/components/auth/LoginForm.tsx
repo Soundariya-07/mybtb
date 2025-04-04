@@ -67,7 +67,9 @@ const LoginForm = ({ onSwitchToRegister, mockUsers, onLoginSuccess }: LoginFormP
       // Mock authentication with sample users
       if (mockUsers) {
         const role = formData.role;
-        const user = mockUsers[`${role}s`]?.find(
+        const userArray = mockUsers[`${role}s`] || [];
+        
+        const user = userArray.find(
           (u: any) => u.email === formData.email && u.password === formData.password
         );
         
@@ -75,6 +77,7 @@ const LoginForm = ({ onSwitchToRegister, mockUsers, onLoginSuccess }: LoginFormP
           // If using the callback for login success
           if (onLoginSuccess) {
             onLoginSuccess(user, role);
+            toast.success("Login successful!");
             return;
           }
           
