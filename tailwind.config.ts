@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,13 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				chess: {
+					blue: '#7FADEB',
+					darkBlue: '#1e293b',
+					navy: '#0f172a',
+					deepNavy: '#080e1a',
+					lightBlue: '#93c5fd'
 				}
 			},
 			borderRadius: {
@@ -89,6 +97,9 @@ export default {
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
+			},
+			backgroundImage: {
+				'chess-pattern': 'linear-gradient(to right, rgba(30, 41, 59, 0.8) 1px, transparent 1px), linear-gradient(to bottom, rgba(30, 41, 59, 0.8) 1px, transparent 1px)',
 			}
 		}
 	},
