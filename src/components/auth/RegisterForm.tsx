@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { 
   Card,
   CardContent,
@@ -18,15 +19,18 @@ import { toast } from "sonner";
 
 interface RegisterFormProps {
   onSwitchToLogin: () => void;
+  mockUsers?: any;
+  onLoginSuccess?: (userData: any, role: string) => void;
 }
 
-const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
+const RegisterForm = ({ onSwitchToLogin, mockUsers, onLoginSuccess }: RegisterFormProps) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
+    role: 'student',
     agreeToTerms: false,
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +40,13 @@ const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
+    }));
+  };
+
+  const handleRoleChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      role: value,
     }));
   };
 
@@ -74,15 +85,41 @@ const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Store user data in localStorage
-      localStorage.setItem('user', JSON.stringify({
+      // Store user data
+      const userData = {
         name: formData.name,
         email: formData.email,
+        role: formData.role,
+      };
+      
+      // If using the callback for login success
+      if (onLoginSuccess) {
+        onLoginSuccess(userData, formData.role);
+        return;
+      }
+      
+      // Default registration success behavior
+      localStorage.setItem('user', JSON.stringify({
+        ...userData,
         isLoggedIn: true,
       }));
       
       toast.success("Registration successful!");
-      navigate('/dashboard');
+      
+      // Navigate based on role
+      switch(formData.role) {
+        case 'student':
+          navigate('/student-dashboard');
+          break;
+        case 'coach':
+          navigate('/coach-dashboard');
+          break;
+        case 'admin':
+          navigate('/admin-dashboard');
+          break;
+        default:
+          navigate('/dashboard');
+      }
     } catch (error) {
       console.error("Registration error:", error);
       toast.error("Registration failed. Please try again.");
@@ -99,6 +136,23 @@ const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="role">I am registering as a:</Label>
+            <RadioGroup 
+              defaultValue={formData.role} 
+              onValueChange={handleRoleChange}
+              className="flex space-x-4"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="student" id="r-student" />
+                <Label htmlFor="r-student">Student</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="coach" id="r-coach" />
+                <Label htmlFor="r-coach">Coach</Label>
+              </div>
+            </RadioGroup>
+          </div>
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
             <Input

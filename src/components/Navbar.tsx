@@ -15,11 +15,11 @@ const Navbar = () => {
     <nav className="w-full py-4 bg-chess-deepNavy/90 backdrop-blur-sm fixed top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center">
-          <Link to="/" className="flex items-center">
+          <Link to="/" className="flex flex-col">
             <span className="text-2xl font-bold text-white">
               <span className="text-chess-blue">Beyond</span>TheBoard
             </span>
-            <span className="text-xs text-gray-400 ml-2 hidden sm:block">An online global chess academy</span>
+            <span className="text-xs text-gray-400">An online global chess academy</span>
           </Link>
 
           {/* Desktop Navigation */}

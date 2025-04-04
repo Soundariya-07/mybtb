@@ -5,6 +5,7 @@ import { ArrowRight, LogIn } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { 
   Card,
   CardContent,
@@ -17,13 +18,16 @@ import { toast } from "sonner";
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;
+  mockUsers?: any;
+  onLoginSuccess?: (userData: any, role: string) => void;
 }
 
-const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
+const LoginForm = ({ onSwitchToRegister, mockUsers, onLoginSuccess }: LoginFormProps) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    role: 'student'
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -32,6 +36,13 @@ const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
+    }));
+  };
+
+  const handleRoleChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      role: value,
     }));
   };
 
@@ -53,9 +64,53 @@ const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Store user data in localStorage
+      // Mock authentication with sample users
+      if (mockUsers) {
+        const role = formData.role;
+        const user = mockUsers[`${role}s`]?.find(
+          (u: any) => u.email === formData.email && u.password === formData.password
+        );
+        
+        if (user) {
+          // If using the callback for login success
+          if (onLoginSuccess) {
+            onLoginSuccess(user, role);
+            return;
+          }
+          
+          // Default login success behavior
+          localStorage.setItem('user', JSON.stringify({
+            ...user,
+            role: role,
+            isLoggedIn: true,
+          }));
+          
+          toast.success("Login successful!");
+          
+          // Navigate based on role
+          switch(role) {
+            case 'student':
+              navigate('/student-dashboard');
+              break;
+            case 'coach':
+              navigate('/coach-dashboard');
+              break;
+            case 'admin':
+              navigate('/admin-dashboard');
+              break;
+            default:
+              navigate('/dashboard');
+          }
+          return;
+        } else {
+          throw new Error("Invalid credentials");
+        }
+      }
+      
+      // Fallback for when no mock users are provided
       localStorage.setItem('user', JSON.stringify({
         email: formData.email,
+        role: formData.role,
         isLoggedIn: true,
       }));
       
@@ -63,7 +118,7 @@ const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
       navigate('/dashboard');
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("Login failed. Please try again.");
+      toast.error("Invalid email or password. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -77,6 +132,27 @@ const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="role">I am a:</Label>
+            <RadioGroup 
+              defaultValue={formData.role} 
+              onValueChange={handleRoleChange}
+              className="flex space-x-4"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="student" id="student" />
+                <Label htmlFor="student">Student</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="coach" id="coach" />
+                <Label htmlFor="coach">Coach</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="admin" id="admin" />
+                <Label htmlFor="admin">Admin</Label>
+              </div>
+            </RadioGroup>
+          </div>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input

@@ -1,12 +1,20 @@
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import LoginForm from "@/components/auth/LoginForm";
 import RegisterForm from "@/components/auth/RegisterForm";
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
 
 const Login = () => {
   const [showLogin, setShowLogin] = useState(true);
+  const navigate = useNavigate();
 
   const handleSwitchToRegister = () => {
     setShowLogin(false);
@@ -14,6 +22,46 @@ const Login = () => {
 
   const handleSwitchToLogin = () => {
     setShowLogin(true);
+  };
+
+  // Mock user data for demo purposes
+  const mockUsers = {
+    students: [
+      { email: "student1@gmail.com", password: "student1", name: "Alex Morgan" },
+      { email: "student2@gmail.com", password: "student2", name: "Jamie Taylor" }
+    ],
+    coaches: [
+      { email: "coach1@gmail.com", password: "coach1", name: "David Smith" },
+      { email: "coach2@gmail.com", password: "coach2", name: "Lisa Johnson" }
+    ],
+    admins: [
+      { email: "admin1@gmail.com", password: "admin1", name: "Admin User" },
+      { email: "admin2@gmail.com", password: "admin2", name: "System Admin" }
+    ]
+  };
+
+  const handleLoginSuccess = (userData, role) => {
+    // Store user data in localStorage with role information
+    localStorage.setItem('user', JSON.stringify({
+      ...userData,
+      role: role,
+      isLoggedIn: true,
+    }));
+    
+    // Redirect based on role
+    switch(role) {
+      case 'student':
+        navigate('/student-dashboard');
+        break;
+      case 'coach':
+        navigate('/coach-dashboard');
+        break;
+      case 'admin':
+        navigate('/admin-dashboard');
+        break;
+      default:
+        navigate('/dashboard');
+    }
   };
 
   return (
@@ -34,9 +82,17 @@ const Login = () => {
           </div>
 
           {showLogin ? (
-            <LoginForm onSwitchToRegister={handleSwitchToRegister} />
+            <LoginForm 
+              onSwitchToRegister={handleSwitchToRegister} 
+              mockUsers={mockUsers}
+              onLoginSuccess={handleLoginSuccess}
+            />
           ) : (
-            <RegisterForm onSwitchToLogin={handleSwitchToLogin} />
+            <RegisterForm 
+              onSwitchToLogin={handleSwitchToLogin} 
+              mockUsers={mockUsers}
+              onLoginSuccess={handleLoginSuccess}
+            />
           )}
         </div>
       </main>

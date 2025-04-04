@@ -41,8 +41,8 @@ const HeroSection = () => {
           <div className="relative">
             <div className="w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden">
               <img 
-                src="/lovable-uploads/1b856f94-e6ef-4405-94fd-44a14b42bbc2.png" 
-                alt="Chess board with pieces" 
+                src="/lovable-uploads/e6abee08-2d7f-423b-8d9e-d6d18d1600f3.png" 
+                alt="Chess player making a move" 
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-br from-chess-deepNavy/60 to-transparent rounded-xl"></div>
