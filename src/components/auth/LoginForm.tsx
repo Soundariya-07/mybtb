@@ -69,6 +69,12 @@ const LoginForm = ({ onSwitchToRegister, mockUsers, onLoginSuccess }: LoginFormP
         const role = formData.role;
         const userArray = mockUsers[`${role}s`] || [];
         
+        // Debug logs to help troubleshoot
+        console.log("Looking for user with credentials:", { 
+          email: formData.email,
+          role: role
+        });
+        
         const user = userArray.find(
           (u: any) => u.email === formData.email && u.password === formData.password
         );

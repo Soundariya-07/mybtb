@@ -76,6 +76,7 @@ const CoachDashboard = () => {
 
     try {
       const userData = JSON.parse(userStr);
+      console.log("Coach dashboard - user data:", userData);
       if (!userData.isLoggedIn || userData.role !== 'coach') {
         toast.error("Access denied. Please login as a coach.");
         navigate('/login');

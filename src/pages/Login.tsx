@@ -18,19 +18,22 @@ const Login = () => {
     setShowLogin(true);
   };
 
-  // Mock user data for demo purposes
+  // Mock user data with expanded options
   const mockUsers = {
     students: [
       { email: "student1@gmail.com", password: "student1", name: "Alex Morgan" },
-      { email: "student2@gmail.com", password: "student2", name: "Jamie Taylor" }
+      { email: "student2@gmail.com", password: "student2", name: "Jamie Taylor" },
+      { email: "student3@gmail.com", password: "student3", name: "Chris Johnson" }
     ],
     coaches: [
       { email: "coach1@gmail.com", password: "coach1", name: "David Smith" },
-      { email: "coach2@gmail.com", password: "coach2", name: "Lisa Johnson" }
+      { email: "coach2@gmail.com", password: "coach2", name: "Lisa Johnson" },
+      { email: "coach3@gmail.com", password: "coach3", name: "Michael Chen" }
     ],
     admins: [
       { email: "admin1@gmail.com", password: "admin1", name: "Admin User" },
-      { email: "admin2@gmail.com", password: "admin2", name: "System Admin" }
+      { email: "admin2@gmail.com", password: "admin2", name: "System Admin" },
+      { email: "admin3@gmail.com", password: "admin3", name: "Super Admin" }
     ]
   };
 
@@ -73,6 +76,14 @@ const Login = () => {
                 : 'Create your account and start your chess journey today'
               }
             </p>
+            {showLogin && (
+              <div className="mt-4 text-sm text-gray-400 p-3 bg-chess-deepNavy rounded-lg">
+                <p className="font-medium mb-1">Demo Accounts:</p>
+                <p>Student: student1@gmail.com / student1</p>
+                <p>Coach: coach1@gmail.com / coach1</p>
+                <p>Admin: admin1@gmail.com / admin1</p>
+              </div>
+            )}
           </div>
 
           {showLogin ? (
