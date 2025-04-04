@@ -7,7 +7,7 @@ const programs = [
   {
     id: 'beginner',
     title: 'Beginner',
-    image: '/beginner-chess.jpg',
+    image: '/lovable-uploads/e6abee08-2d7f-423b-8d9e-d6d18d1600f3.png',
     description: 'Perfect for those who are new to chess. Learn the fundamentals of the game, piece movements, and basic strategies.',
     features: [
       'Basic piece movements',
@@ -18,7 +18,7 @@ const programs = [
   {
     id: 'intermediate-1',
     title: 'Intermediate 1',
-    image: '/intermediate1-chess.jpg',
+    image: '/lovable-uploads/f4184eb7-c262-47fc-9d1e-fe309c2ebdf6.png',
     description: 'Building on fundamentals, this program teaches tactical patterns, planning, and middle game concepts.',
     features: [
       'Basic tactics',
@@ -29,7 +29,7 @@ const programs = [
   {
     id: 'intermediate-2',
     title: 'Intermediate 2',
-    image: '/intermediate2-chess.jpg',
+    image: '/lovable-uploads/9051c81a-ebc3-4a44-bc96-0a0b7d627393.png',
     description: 'For improving players, focusing on deeper strategic understanding, complex tactics, and specific openings.',
     features: [
       'Advanced tactics',
@@ -40,7 +40,7 @@ const programs = [
   {
     id: 'advanced',
     title: 'Advanced',
-    image: '/advanced-chess.jpg',
+    image: '/lovable-uploads/f4184eb7-c262-47fc-9d1e-fe309c2ebdf6.png',
     description: 'Elite training for serious competitors, covering sophisticated strategies, deep analysis, and tournament preparation.',
     features: [
       'Critical positions',
