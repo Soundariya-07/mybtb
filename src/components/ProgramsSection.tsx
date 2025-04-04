@@ -1,4 +1,7 @@
-
+import Logo1 from "./images/beginner.jpg";
+import Logo2 from "./images/intermediate1.jpg";
+import Logo3 from "./images/intermediate2.jpg";
+import Logo4 from "./images/advanced.jpg";
 import { Check, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -7,7 +10,7 @@ const programs = [
   {
     id: 'beginner',
     title: 'Beginner',
-    image: '/lovable-uploads/e6abee08-2d7f-423b-8d9e-d6d18d1600f3.png',
+    image: Logo1,
     description: 'Perfect for those who are new to chess. Learn the fundamentals of the game, piece movements, and basic strategies.',
     features: [
       'Basic piece movements',
@@ -18,7 +21,7 @@ const programs = [
   {
     id: 'intermediate-1',
     title: 'Intermediate 1',
-    image: '/lovable-uploads/f4184eb7-c262-47fc-9d1e-fe309c2ebdf6.png',
+    image: Logo2,
     description: 'Building on fundamentals, this program teaches tactical patterns, planning, and middle game concepts.',
     features: [
       'Basic tactics',
@@ -29,7 +32,7 @@ const programs = [
   {
     id: 'intermediate-2',
     title: 'Intermediate 2',
-    image: '/lovable-uploads/9051c81a-ebc3-4a44-bc96-0a0b7d627393.png',
+    image: Logo3,
     description: 'For improving players, focusing on deeper strategic understanding, complex tactics, and specific openings.',
     features: [
       'Advanced tactics',
@@ -40,7 +43,7 @@ const programs = [
   {
     id: 'advanced',
     title: 'Advanced',
-    image: '/lovable-uploads/f4184eb7-c262-47fc-9d1e-fe309c2ebdf6.png',
+    image: Logo4,
     description: 'Elite training for serious competitors, covering sophisticated strategies, deep analysis, and tournament preparation.',
     features: [
       'Critical positions',

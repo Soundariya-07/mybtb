@@ -13,7 +13,7 @@ const programsData = {
     title: 'Beginner Chess Course',
     subtitle: 'Learn the foundations of chess',
     description: 'Perfect for those who are new to chess. Learn the fundamentals of the game, piece movements, and basic strategies.',
-    image: '/lovable-uploads/e6abee08-2d7f-423b-8d9e-d6d18d1600f3.png',
+    
     duration: '12 weeks',
     sessions: '1-2 sessions per week',
     level: 'Beginner (0-800 rating)',
@@ -181,11 +181,7 @@ const ProgramDetail = () => {
               </div>
               <div className="relative">
                 <div className="w-full h-[300px] rounded-xl overflow-hidden">
-                  <img 
-                    src={program.image} 
-                    alt={program.title} 
-                    className="w-full h-full object-cover"
-                  />
+                  
                   <div className="absolute inset-0 bg-gradient-to-br from-chess-deepNavy/60 to-transparent rounded-xl"></div>
                 </div>
               </div>
