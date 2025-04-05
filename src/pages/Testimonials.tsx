@@ -44,7 +44,7 @@ const testimonials = [
     content: "My son has been taking classes for just three months, and he's already competing confidently in local tournaments. The coaches make learning chess fun and engaging for kids.",
     name: "Neha Gupta",
     title: "Parent",
-    avatar: "/lovable-uploads/9051c81a-ebc3-4a44-bc96-0a0b7d627393.png" // Female image with a child's photo
+    avatar: "/lovable-uploads/9051c81a-ebc3-4a44-bc96-0a0b7d627393.png" // Female image
   }
 ];
 

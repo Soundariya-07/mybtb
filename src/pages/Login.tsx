@@ -44,6 +44,9 @@ const Login = () => {
   };
 
   const handleLoginSuccess = (userData, role) => {
+    // Add console log to debug
+    console.log(`Login successful for ${userData.name} with role ${role}`);
+    
     // Store user data in localStorage with role information
     localStorage.setItem('user', JSON.stringify({
       ...userData,
