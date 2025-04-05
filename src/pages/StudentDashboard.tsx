@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -11,7 +12,8 @@ import {
   CheckCircle,
   XCircle,
   Send,
-  Users
+  Users,
+  MessageCircle
 } from 'lucide-react';
 import { toast } from "sonner";
 import { 
@@ -126,10 +128,10 @@ const StudentDashboard = () => {
     { id: 3, name: "Batch B - Group Chat", role: "Group", unread: 0, lastMessage: "Michael: Good luck to everyone in the weekend tournament!", time: "2 days ago" }
   ]);
   
-  const [activeConversation, setActiveConversation] = useState(null);
+  const [activeConversation, setActiveConversation] = useState<number | null>(null);
   const [messageText, setMessageText] = useState("");
   
-  const [messages, setMessages] = useState({
+  const [messages, setMessages] = useState<Record<number, any[]>>({
     1: [
       { id: 1, sender: "David Smith", text: "Hello Alex! How is your progress with the knight endgame exercises?", time: "10:30 AM", isMine: false },
       { id: 2, sender: "You", text: "I'm still working through them. The third position is challenging!", time: "10:32 AM", isMine: true },
@@ -193,23 +195,6 @@ const StudentDashboard = () => {
 
   const handleStartConversation = () => {
     setShowMessageDialog(true);
-  };
-
-  const handleSendMessage = () => {
-    if (!newMessageData.recipient || !newMessageData.subject || !newMessageData.message) {
-      toast.error("Please fill in all fields");
-      return;
-    }
-    
-    toast.success(`Message sent to ${newMessageData.recipient}`);
-    setShowMessageDialog(false);
-    
-    // Reset form
-    setNewMessageData({
-      recipient: '',
-      subject: '',
-      message: ''
-    });
   };
 
   const handleSubmitAssignment = () => {
@@ -787,4 +772,314 @@ const StudentDashboard = () => {
                   ) : (
                     <div className="flex-1 flex items-center justify-center p-4">
                       <div className="text-center">
-                        <MessageCircle className="h-
+                        <MessageSquare className="h-12 w-12 text-chess-blue/40 mx-auto mb-4" />
+                        <h3 className="text-white font-medium mb-2">No Conversation Selected</h3>
+                        <p className="text-sm text-gray-400">Choose a conversation from the list or start a new one.</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Dialog for starting a new conversation */}
+              <Dialog open={showMessageDialog} onOpenChange={setShowMessageDialog}>
+                <DialogContent className="bg-chess-navy border-chess-blue/20 text-white">
+                  <DialogHeader>
+                    <DialogTitle>New Message</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div>
+                      <Label htmlFor="recipient" className="text-sm text-gray-400">
+                        To:
+                      </Label>
+                      <Input 
+                        id="recipient" 
+                        value={newMessageData.recipient}
+                        onChange={e => setNewMessageData(prev => ({ ...prev, recipient: e.target.value }))}
+                        placeholder="Enter recipient name"
+                        className="bg-chess-deepNavy border-chess-blue/20 mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="subject" className="text-sm text-gray-400">
+                        Subject (optional):
+                      </Label>
+                      <Input 
+                        id="subject"
+                        value={newMessageData.subject}
+                        onChange={e => setNewMessageData(prev => ({ ...prev, subject: e.target.value }))}
+                        placeholder="Enter subject"
+                        className="bg-chess-deepNavy border-chess-blue/20 mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="message" className="text-sm text-gray-400">
+                        Message:
+                      </Label>
+                      <Textarea 
+                        id="message"
+                        value={newMessageData.message}
+                        onChange={e => setNewMessageData(prev => ({ ...prev, message: e.target.value }))}
+                        placeholder="Type your message..."
+                        className="bg-chess-deepNavy border-chess-blue/20 h-32 mt-1"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowMessageDialog(false)}
+                      className="border-chess-blue/20 text-gray-300 hover:bg-chess-deepNavy"
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      className="bg-chess-blue hover:bg-chess-blue/90"
+                      onClick={handleCreateConversation}
+                    >
+                      Send Message
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </CardContent>
+          </Card>
+        );
+      case "settings":
+        return (
+          <Card className="bg-chess-navy border-chess-blue/20">
+            <CardHeader>
+              <CardTitle className="text-white">Settings</CardTitle>
+              <CardDescription>Manage your account preferences</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {/* User Profile Section */}
+                <div>
+                  <h3 className="text-lg font-medium text-white mb-4">Your Profile</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="display-name" className="text-sm text-gray-400">
+                        Display Name
+                      </Label>
+                      <Input 
+                        id="display-name" 
+                        defaultValue={user.name} 
+                        className="bg-chess-deepNavy border-chess-blue/20 mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="email" className="text-sm text-gray-400">
+                        Email Address
+                      </Label>
+                      <Input 
+                        id="email" 
+                        type="email" 
+                        defaultValue={user.email} 
+                        className="bg-chess-deepNavy border-chess-blue/20 mt-1"
+                      />
+                    </div>
+                    <Button 
+                      className="bg-chess-blue hover:bg-chess-blue/90"
+                      onClick={() => toast.success("Profile updated successfully!")}
+                    >
+                      Update Profile
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Notification Preferences */}
+                <div>
+                  <h3 className="text-lg font-medium text-white mb-4">Notification Preferences</h3>
+                  <div className="space-y-2">
+                    {/* Notification settings (simplified example) */}
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="email-notifs" className="cursor-pointer text-white">
+                        Email Notifications
+                      </Label>
+                      <input 
+                        type="checkbox" 
+                        id="email-notifs" 
+                        className="w-4 h-4 text-chess-blue bg-chess-deepNavy border-chess-blue/50 rounded focus:ring-chess-blue" 
+                        defaultChecked
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="class-reminders" className="cursor-pointer text-white">
+                        Class Reminders
+                      </Label>
+                      <input 
+                        type="checkbox" 
+                        id="class-reminders" 
+                        className="w-4 h-4 text-chess-blue bg-chess-deepNavy border-chess-blue/50 rounded focus:ring-chess-blue" 
+                        defaultChecked
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="assignment-notifs" className="cursor-pointer text-white">
+                        Assignment Notifications
+                      </Label>
+                      <input 
+                        type="checkbox" 
+                        id="assignment-notifs" 
+                        className="w-4 h-4 text-chess-blue bg-chess-deepNavy border-chess-blue/50 rounded focus:ring-chess-blue" 
+                        defaultChecked
+                      />
+                    </div>
+                    <Button 
+                      className="mt-4 bg-chess-blue hover:bg-chess-blue/90"
+                      onClick={() => toast.success("Notification preferences saved!")}
+                    >
+                      Save Preferences
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Password Update Section */}
+                <div>
+                  <h3 className="text-lg font-medium text-white mb-4">Change Password</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="current-password" className="text-sm text-gray-400">
+                        Current Password
+                      </Label>
+                      <Input 
+                        id="current-password" 
+                        type="password" 
+                        placeholder="Enter current password"
+                        className="bg-chess-deepNavy border-chess-blue/20 mt-1" 
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="new-password" className="text-sm text-gray-400">
+                        New Password
+                      </Label>
+                      <Input 
+                        id="new-password" 
+                        type="password" 
+                        placeholder="Enter new password"
+                        className="bg-chess-deepNavy border-chess-blue/20 mt-1" 
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="confirm-password" className="text-sm text-gray-400">
+                        Confirm New Password
+                      </Label>
+                      <Input 
+                        id="confirm-password" 
+                        type="password" 
+                        placeholder="Confirm new password" 
+                        className="bg-chess-deepNavy border-chess-blue/20 mt-1"
+                      />
+                    </div>
+                    <Button 
+                      className="bg-chess-blue hover:bg-chess-blue/90"
+                      onClick={() => toast.success("Password updated successfully!")}
+                    >
+                      Change Password
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Account Actions */}
+                <div>
+                  <h3 className="text-lg font-medium text-white mb-4">Account Actions</h3>
+                  <div className="space-x-4">
+                    <Button 
+                      variant="outline"
+                      className="border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10"
+                      onClick={() => toast.info("This feature is coming soon!")}
+                    >
+                      Download My Data
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="border-red-500/20 text-red-500 hover:bg-red-500/10"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      default:
+        return (
+          <Card className="bg-chess-navy border-chess-blue/20">
+            <CardHeader>
+              <CardTitle className="text-white">Welcome to Your Dashboard</CardTitle>
+              <CardDescription>Select a section from the sidebar to get started</CardDescription>
+            </CardHeader>
+            <CardContent className="text-gray-300">
+              <p>Use the sidebar navigation to access your classes, assignments, progress tracking, and messages.</p>
+            </CardContent>
+          </Card>
+        );
+    }
+  };
+
+  return (
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <Sidebar>
+          <SidebarHeader className="px-6 border-b border-chess-blue/10">
+            <div className="flex flex-col items-center">
+              <h1 className="text-xl font-bold text-white">
+                <span className="text-chess-blue">Beyond</span>TheBoard
+              </h1>
+              <p className="text-xs text-gray-400">Student Dashboard</p>
+            </div>
+          </SidebarHeader>
+          <SidebarContent className="p-2">
+            <SidebarMenu>
+              {menuItems.map((item) => (
+                <SidebarMenuItem key={item.section} active={item.active}>
+                  <SidebarMenuButton onClick={() => handleNavigate(item.section)}>
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.label}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarContent>
+          <SidebarFooter className="p-4 border-t border-chess-blue/10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-chess-blue/30 flex items-center justify-center text-xl font-bold text-white">
+                {user.name.charAt(0)}
+              </div>
+              <div>
+                <p className="text-white font-medium">{user.name}</p>
+                <p className="text-xs text-gray-400">{user.email}</p>
+              </div>
+            </div>
+            <Button 
+              variant="outline" 
+              className="mt-4 w-full border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10"
+              onClick={handleLogout}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+          </SidebarFooter>
+        </Sidebar>
+        
+        <div className="flex-1 p-6 md:p-10 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-white">Welcome, {user.name}</h1>
+              <p className="text-gray-400">Here's what's happening with your chess journey</p>
+            </div>
+            <SidebarTrigger />
+          </div>
+          
+          {renderContent()}
+        </div>
+      </div>
+    </SidebarProvider>
+  );
+};
+
+export default StudentDashboard;
