@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -11,7 +10,8 @@ import {
   BarChart,
   CheckCircle,
   XCircle,
-  Send
+  Send,
+  Users
 } from 'lucide-react';
 import { toast } from "sonner";
 import { 
@@ -118,6 +118,35 @@ const StudentDashboard = () => {
     message: ''
   });
   const [localAssignments, setLocalAssignments] = useState(assignments);
+  
+  // Add new state variables for messaging feature
+  const [conversations, setConversations] = useState([
+    { id: 1, name: "David Smith", role: "Coach", unread: 2, lastMessage: "How is your progress with the knight endgame exercises?", time: "10:30 AM" },
+    { id: 2, name: "Batch A - Group Chat", role: "Group", unread: 0, lastMessage: "Lisa: I found this great resource for studying openings.", time: "Yesterday" },
+    { id: 3, name: "Batch B - Group Chat", role: "Group", unread: 0, lastMessage: "Michael: Good luck to everyone in the weekend tournament!", time: "2 days ago" }
+  ]);
+  
+  const [activeConversation, setActiveConversation] = useState(null);
+  const [messageText, setMessageText] = useState("");
+  
+  const [messages, setMessages] = useState({
+    1: [
+      { id: 1, sender: "David Smith", text: "Hello Alex! How is your progress with the knight endgame exercises?", time: "10:30 AM", isMine: false },
+      { id: 2, sender: "You", text: "I'm still working through them. The third position is challenging!", time: "10:32 AM", isMine: true },
+      { id: 3, sender: "David Smith", text: "Focus on controlling the central squares. Try to visualize where your knight can be most active.", time: "10:35 AM", isMine: false }
+    ],
+    2: [
+      { id: 1, sender: "Lisa", text: "I found this great resource for studying openings.", time: "Yesterday", isMine: false },
+      { id: 2, sender: "Rahul", text: "Thanks for sharing! I've been struggling with the Sicilian.", time: "Yesterday", isMine: false },
+      { id: 3, sender: "You", text: "The Sicilian is complex. We can discuss it in the next session.", time: "Yesterday", isMine: true },
+      { id: 4, sender: "David Smith", text: "Great idea! I'll prepare some example positions.", time: "Yesterday", isMine: false }
+    ],
+    3: [
+      { id: 1, sender: "Michael", text: "Good luck to everyone in the weekend tournament!", time: "2 days ago", isMine: false },
+      { id: 2, sender: "Priya", text: "Thank you! I'm a bit nervous but excited.", time: "2 days ago", isMine: false },
+      { id: 3, sender: "You", text: "You'll do great! Remember what we practiced.", time: "2 days ago", isMine: true }
+    ]
+  });
 
   useEffect(() => {
     // Check if user is logged in as a student
@@ -192,6 +221,88 @@ const StudentDashboard = () => {
     setLocalAssignments(updatedAssignments);
     toast.success("Assignment submitted successfully");
     setShowAssignmentDialog(false);
+  };
+  
+  // Handle sending a new message
+  const handleSendMessage = () => {
+    if (!messageText.trim() || !activeConversation) return;
+    
+    const newMessage = {
+      id: messages[activeConversation]?.length + 1 || 1,
+      sender: "You",
+      text: messageText,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      isMine: true
+    };
+    
+    setMessages(prev => ({
+      ...prev,
+      [activeConversation]: [...(prev[activeConversation] || []), newMessage]
+    }));
+    
+    // Update the conversation list with the last message
+    setConversations(prev => 
+      prev.map(conv => 
+        conv.id === activeConversation 
+          ? {...conv, lastMessage: `You: ${messageText}`, time: "Just now", unread: 0}
+          : conv
+      )
+    );
+    
+    setMessageText("");
+    toast.success("Message sent");
+  };
+  
+  // Start a new conversation
+  const handleStartNewConversation = () => {
+    setNewMessageData(prev => ({
+      ...prev,
+      recipient: '',
+      subject: '',
+      message: ''
+    }));
+    setShowMessageDialog(true);
+  };
+  
+  // Handle creating a new conversation
+  const handleCreateConversation = () => {
+    if (!newMessageData.recipient || !newMessageData.message) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    
+    const newConvId = Math.max(...Object.keys(messages).map(Number)) + 1;
+    
+    // Add new conversation
+    setConversations(prev => [
+      {
+        id: newConvId,
+        name: newMessageData.recipient,
+        role: "Coach",
+        unread: 0,
+        lastMessage: `You: ${newMessageData.message}`,
+        time: "Just now"
+      },
+      ...prev
+    ]);
+    
+    // Add initial message
+    setMessages(prev => ({
+      ...prev,
+      [newConvId]: [
+        {
+          id: 1,
+          sender: "You",
+          text: newMessageData.message,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isMine: true
+        }
+      ]
+    }));
+    
+    setActiveConversation(newConvId);
+    setShowMessageDialog(false);
+    toast.success("Conversation started");
   };
 
   if (!user) {
@@ -553,236 +664,127 @@ const StudentDashboard = () => {
           <Card className="bg-chess-navy border-chess-blue/20">
             <CardHeader>
               <CardTitle className="text-white">Messages</CardTitle>
-              <CardDescription>Communications with your coaches</CardDescription>
+              <CardDescription>Communications with coaches and peers</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="p-6 text-center">
-                <h3 className="text-lg font-medium text-white mb-2">No new messages</h3>
-                <p className="text-gray-400 mb-4">You don't have any unread messages at the moment.</p>
-                <Button 
-                  className="bg-chess-blue hover:bg-chess-blue/90"
-                  onClick={handleStartConversation}
-                >
-                  Start a Conversation
-                </Button>
-              </div>
-              
-              <Dialog open={showMessageDialog} onOpenChange={setShowMessageDialog}>
-                <DialogContent className="bg-chess-navy border-chess-blue/20 text-white">
-                  <DialogHeader>
-                    <DialogTitle>New Message</DialogTitle>
-                    <DialogDescription className="text-gray-400">
-                      Send a message to your coach
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="py-4">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="recipient">To</Label>
-                        <Input
-                          id="recipient"
-                          value={newMessageData.recipient}
-                          onChange={(e) => setNewMessageData({...newMessageData, recipient: e.target.value})}
-                          placeholder="Recipient"
-                          className="bg-chess-deepNavy border-chess-blue/20"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="subject">Subject</Label>
-                        <Input
-                          id="subject"
-                          value={newMessageData.subject}
-                          onChange={(e) => setNewMessageData({...newMessageData, subject: e.target.value})}
-                          placeholder="Subject"
-                          className="bg-chess-deepNavy border-chess-blue/20"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="message">Message</Label>
-                        <Textarea
-                          id="message"
-                          value={newMessageData.message}
-                          onChange={(e) => setNewMessageData({...newMessageData, message: e.target.value})}
-                          placeholder="Type your message here..."
-                          className="bg-chess-deepNavy border-chess-blue/20 h-24"
-                        />
-                      </div>
-                    </div>
+              <div className="flex h-[600px] border rounded-md border-chess-blue/20">
+                {/* Conversations List */}
+                <div className="w-1/3 border-r border-chess-blue/20 overflow-y-auto">
+                  <div className="p-3 border-b border-chess-blue/20">
+                    <Button 
+                      className="w-full bg-chess-blue hover:bg-chess-blue/90"
+                      onClick={handleStartNewConversation}
+                    >
+                      <MessageCircle className="mr-2 h-4 w-4" />
+                      New Message
+                    </Button>
                   </div>
-                  <DialogFooter>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setShowMessageDialog(false)}
-                      className="border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10"
-                    >
-                      Cancel
-                    </Button>
-                    <Button 
-                      className="bg-chess-blue hover:bg-chess-blue/90"
-                      onClick={handleSendMessage}
-                    >
-                      <Send className="mr-2 h-4 w-4" />
-                      Send Message
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </CardContent>
-          </Card>
-        );
-      case "settings":
-        return (
-          <Card className="bg-chess-navy border-chess-blue/20">
-            <CardHeader>
-              <CardTitle className="text-white">Account Settings</CardTitle>
-              <CardDescription>Manage your account preferences</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium text-white mb-2">Profile Information</h3>
-                  <p className="text-gray-400 mb-4">Update your profile details</p>
-                  <Button 
-                    className="bg-chess-blue hover:bg-chess-blue/90"
-                    onClick={() => toast.success("Profile edit dialog would open here")}
-                  >
-                    Edit Profile
-                  </Button>
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-white mb-2">Password</h3>
-                  <p className="text-gray-400 mb-4">Change your password</p>
-                  <Button 
-                    className="bg-chess-blue hover:bg-chess-blue/90"
-                    onClick={() => toast.success("Password change dialog would open here")}
-                  >
-                    Change Password
-                  </Button>
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-white mb-2">Notification Preferences</h3>
-                  <p className="text-gray-400 mb-4">Manage how you receive notifications</p>
-                  <Button 
-                    className="bg-chess-blue hover:bg-chess-blue/90"
-                    onClick={() => toast.success("Notification settings dialog would open here")}
-                  >
-                    Notification Settings
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        );
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-chess-deepNavy text-white">
-        <Sidebar className="bg-chess-navy border-r border-chess-blue/20">
-          <SidebarHeader className="py-4 px-6 border-b border-chess-blue/20">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold">
-                <span className="text-chess-blue">Beyond</span>TheBoard
-              </span>
-            </div>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarMenu>
-              {menuItems.map((item, index) => (
-                <SidebarMenuItem key={index}>
-                  <SidebarMenuButton 
-                    isActive={item.active} 
-                    onClick={() => handleNavigate(item.section)}
-                  >
-                    <item.icon className="w-5 h-5" />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarContent>
-          <SidebarFooter>
-            <Button variant="ghost" className="w-full justify-start text-gray-400 hover:text-white" onClick={handleLogout}>
-              <LogOut className="w-5 h-5 mr-2" />
-              <span>Logout</span>
-            </Button>
-          </SidebarFooter>
-        </Sidebar>
-
-        <div className="flex-1 flex flex-col">
-          <header className="bg-chess-navy h-16 shadow-md flex items-center px-4 sm:px-6 border-b border-chess-blue/20">
-            <SidebarTrigger />
-            <div className="flex-1 flex justify-between items-center">
-              <h1 className="text-xl font-semibold">Student Dashboard</h1>
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-400">Welcome,</span>
-                <span className="font-medium">{user.name}</span>
-                <Button variant="outline" size="sm" className="border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10" onClick={handleLogout}>
-                  Logout
-                </Button>
-              </div>
-            </div>
-          </header>
-
-          <main className="flex-1 p-6 overflow-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card className="bg-chess-navy border-chess-blue/20">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg text-white">Next Class</CardTitle>
-                  <CardDescription>Your upcoming session</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {upcomingClasses.length > 0 ? (
-                    <div>
-                      <div className="text-lg font-medium text-white">{upcomingClasses[0].topic}</div>
-                      <div className="text-sm text-gray-400">
-                        {new Date(upcomingClasses[0].date).toLocaleDateString()} • {upcomingClasses[0].time}
+                  
+                  <div className="divide-y divide-chess-blue/20">
+                    {conversations.map(conv => (
+                      <div 
+                        key={conv.id}
+                        className={`p-3 cursor-pointer hover:bg-chess-deepNavy ${activeConversation === conv.id ? 'bg-chess-deepNavy' : ''}`}
+                        onClick={() => {
+                          setActiveConversation(conv.id);
+                          // Mark as read
+                          setConversations(prev => 
+                            prev.map(c => 
+                              c.id === conv.id ? {...c, unread: 0} : c
+                            )
+                          );
+                        }}
+                      >
+                        <div className="flex justify-between">
+                          <div className="flex items-center">
+                            <div className="mr-3">
+                              {conv.role === "Group" ? (
+                                <div className="w-10 h-10 rounded-full bg-chess-blue/30 flex items-center justify-center">
+                                  <Users className="h-5 w-5 text-chess-blue" />
+                                </div>
+                              ) : (
+                                <div className="w-10 h-10 rounded-full bg-chess-blue/30 flex items-center justify-center">
+                                  <MessageCircle className="h-5 w-5 text-chess-blue" />
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <div className="text-white font-medium flex items-center">
+                                {conv.name}
+                                {conv.unread > 0 && (
+                                  <span className="ml-2 bg-chess-blue text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    {conv.unread}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-xs text-gray-400">{conv.role}</div>
+                            </div>
+                          </div>
+                          <div className="text-xs text-gray-400">{conv.time}</div>
+                        </div>
+                        <div className="mt-1 text-sm text-gray-300 truncate">{conv.lastMessage}</div>
                       </div>
-                      <div className="text-sm text-gray-400 mt-1">with {upcomingClasses[0].coach}</div>
-                    </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Message Content */}
+                <div className="w-2/3 flex flex-col">
+                  {activeConversation ? (
+                    <>
+                      <div className="p-4 border-b border-chess-blue/20">
+                        <h3 className="text-white font-medium">
+                          {conversations.find(c => c.id === activeConversation)?.name}
+                        </h3>
+                        <p className="text-xs text-gray-400">
+                          {conversations.find(c => c.id === activeConversation)?.role}
+                        </p>
+                      </div>
+                      
+                      <div className="flex-1 p-4 overflow-y-auto">
+                        <div className="space-y-4">
+                          {messages[activeConversation]?.map(message => (
+                            <div key={message.id} className={`flex ${message.isMine ? 'justify-end' : 'justify-start'}`}>
+                              <div className={`max-w-[80%] p-3 rounded-lg ${
+                                message.isMine 
+                                  ? 'bg-chess-blue text-white' 
+                                  : 'bg-chess-deepNavy text-white'
+                              }`}>
+                                {!message.isMine && (
+                                  <p className="text-xs font-medium mb-1">{message.sender}</p>
+                                )}
+                                <p className="text-sm">{message.text}</p>
+                                <p className="text-xs opacity-70 mt-1 text-right">{message.time}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="p-4 border-t border-chess-blue/20">
+                        <div className="flex">
+                          <Textarea
+                            value={messageText}
+                            onChange={e => setMessageText(e.target.value)}
+                            placeholder="Type your message..."
+                            className="bg-chess-deepNavy border-chess-blue/20 flex-1 resize-none"
+                            onKeyDown={e => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSendMessage();
+                              }
+                            }}
+                          />
+                          <Button 
+                            className="ml-2 bg-chess-blue hover:bg-chess-blue/90"
+                            onClick={handleSendMessage}
+                          >
+                            <Send className="h-5 w-5" />
+                          </Button>
+                        </div>
+                      </div>
+                    </>
                   ) : (
-                    <div className="text-gray-400">No upcoming classes</div>
-                  )}
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-chess-navy border-chess-blue/20">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg text-white">Pending Assignments</CardTitle>
-                  <CardDescription>Tasks to complete</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-chess-blue">
-                    {localAssignments.filter(a => !a.completed).length}
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-chess-navy border-chess-blue/20">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg text-white">Overall Progress</CardTitle>
-                  <CardDescription>Your chess development</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-2">
-                    <div className="text-3xl font-bold text-chess-blue">60%</div>
-                    <Progress value={60} className="h-2 flex-1" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6">
-              {renderContent()}
-            </div>
-          </main>
-        </div>
-      </div>
-    </SidebarProvider>
-  );
-};
-
-export default StudentDashboard;
+                    <div className="flex-1 flex items-center justify-center p-4">
+                      <div className="text-center">
+                        <MessageCircle className="h-

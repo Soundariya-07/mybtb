@@ -1,21 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Users, 
-  BookOpen, 
-  BarChart4, 
-  Settings,
-  LogOut,
-  UserPlus,
-  UserCog,
-  Search,
-  Calendar,
-  Clock,
-  SquarePen,
-  Pencil,
-  Save,
-  X
-} from 'lucide-react';
+import { Plus, Edit, Trash2, UserPlus, Users, Calendar, CheckCircle, XCircle } from 'lucide-react';
 import { toast } from "sonner";
 import { 
   SidebarProvider, 
@@ -29,17 +14,8 @@ import {
   SidebarTrigger
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -49,15 +25,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 interface User {
   name: string;
@@ -66,113 +44,60 @@ interface User {
   isLoggedIn: boolean;
 }
 
-interface Student {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-  status: string;
-  joinDate: string;
-}
-
-interface Coach {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-  status: string;
-  joinDate: string;
-  specialization: string;
-}
-
-interface Class {
-  id: number;
-  name: string;
-  coach: string;
-  students: number;
-  schedule: string;
-  status: string;
-  batch: string;
-  enrolledStudents?: Student[];
-}
-
-// Mock data for the admin dashboard
-const students = [
-  { id: 1, name: "Alex Morgan", email: "alex@example.com", role: "student", status: "Active", joinDate: "2025-01-15" },
-  { id: 2, name: "Jamie Taylor", email: "jamie@example.com", role: "student", status: "Active", joinDate: "2025-02-03" },
-  { id: 3, name: "Taylor Smith", email: "taylor@example.com", role: "student", status: "Inactive", joinDate: "2025-02-20" },
-  { id: 4, name: "Ryan Johnson", email: "ryan@example.com", role: "student", status: "Active", joinDate: "2025-03-10" },
-  { id: 5, name: "Rahul Sharma", email: "rahul@gmail.com", role: "student", status: "Active", joinDate: "2025-01-05" },
-  { id: 6, name: "Priya Patel", email: "priya@gmail.com", role: "student", status: "Active", joinDate: "2025-02-15" },
-  { id: 7, name: "Arjun Singh", email: "arjun@gmail.com", role: "student", status: "Active", joinDate: "2025-03-01" },
-  { id: 8, name: "Anjali Desai", email: "anjali@example.com", role: "student", status: "Active", joinDate: "2025-02-25" },
-  { id: 9, name: "Karan Verma", email: "karan@example.com", role: "student", status: "Inactive", joinDate: "2025-01-30" }
-];
-
-const coaches = [
-  { id: 1, name: "David Smith", email: "david@example.com", role: "coach", status: "Active", joinDate: "2024-11-05", specialization: "Openings" },
-  { id: 2, name: "Lisa Johnson", email: "lisa@example.com", role: "coach", status: "Active", joinDate: "2024-12-12", specialization: "Endgames" },
-  { id: 3, name: "Michael Chen", email: "michael@example.com", role: "coach", status: "Active", joinDate: "2025-01-10", specialization: "Tactics" },
-  { id: 4, name: "Ananya Gupta", email: "ananya@gmail.com", role: "coach", status: "Active", joinDate: "2024-10-15", specialization: "Middlegame" },
-  { id: 5, name: "Vikram Reddy", email: "vikram@gmail.com", role: "coach", status: "Active", joinDate: "2025-02-01", specialization: "Strategy" },
-];
-
-const classes = [
-  { id: 1, name: "Beginner Group Class", coach: "David Smith", students: 5, schedule: "Mon, Wed 5:00 PM", status: "Active", batch: "Batch A USA", enrolledStudents: students.slice(0, 5) },
-  { id: 2, name: "Advanced Tactics", coach: "Lisa Johnson", students: 3, schedule: "Tue, Thu 6:00 PM", status: "Active", batch: "Batch B USA", enrolledStudents: students.slice(3, 6) },
-  { id: 3, name: "Endgame Mastery", coach: "David Smith", students: 4, schedule: "Fri 5:00 PM", status: "Pending", batch: "Batch A UAE", enrolledStudents: students.slice(1, 5) },
-  { id: 4, name: "Opening Preparation", coach: "Ananya Gupta", students: 6, schedule: "Mon, Thu 7:00 PM", status: "Active", batch: "Batch B UAE", enrolledStudents: students.slice(2, 8) },
-  { id: 5, name: "Strategic Planning", coach: "Vikram Reddy", students: 4, schedule: "Tue, Sat 4:00 PM", status: "Active", batch: "Batch C USA", enrolledStudents: students.slice(4, 8) },
-];
-
-const revenueData = [
-  { month: "January", amount: 3450 },
-  { month: "February", amount: 4200 },
-  { month: "March", amount: 3800 },
-  { month: "April", amount: 4500 },
-];
-
-const demoRequests = [
-  { id: 1, name: "Sarah Chen", email: "sarah@example.com", date: "2025-04-10", time: "14:00", status: "Pending", coach: null },
-  { id: 2, name: "Mark Davis", email: "mark@example.com", date: "2025-04-12", time: "15:30", status: "Assigned", coach: "David Smith" },
-  { id: 3, name: "Emma Wilson", email: "emma@example.com", date: "2025-04-15", time: "17:00", status: "Pending", coach: null },
-];
-
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
-  const [activeTab, setActiveTab] = useState("students");
   const [activeSection, setActiveSection] = useState("users");
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showAddUserDialog, setShowAddUserDialog] = useState(false);
-  const [newUserData, setNewUserData] = useState({
+
+  // User state
+  const [users, setUsers] = useState([
+    { id: 1, name: "Alex Morgan", email: "alex@example.com", role: "student", status: "Active", joinDate: "2024-01-15" },
+    { id: 2, name: "Jamie Taylor", email: "jamie@example.com", role: "student", status: "Active", joinDate: "2024-02-20" },
+    { id: 3, name: "Chris Johnson", email: "chris@example.com", role: "student", status: "Inactive", joinDate: "2024-03-10" },
+    { id: 4, name: "David Smith", email: "david@example.com", role: "coach", status: "Active", joinDate: "2023-11-01" },
+    { id: 5, name: "Lisa Johnson", email: "lisa@example.com", role: "coach", status: "Active", joinDate: "2023-12-05" },
+    { id: 6, name: "Admin User", email: "admin@example.com", role: "admin", status: "Active", joinDate: "2023-10-01" },
+  ]);
+  const [newUser, setNewUser] = useState({
     name: '',
     email: '',
     role: 'student',
     status: 'Active'
   });
-  const [localStudents, setLocalStudents] = useState(students);
-  const [localCoaches, setLocalCoaches] = useState(coaches);
-  const [localClasses, setLocalClasses] = useState(classes);
-  const [localDemoRequests, setLocalDemoRequests] = useState(demoRequests);
-  const [showClassDialog, setShowClassDialog] = useState(false);
+  const [showAddUserDialog, setShowAddUserDialog] = useState(false);
+
+  // Class state
+  interface Class {
+    id: number;
+    name: string;
+    coach: string;
+    students: number;
+    schedule: string;
+    status: string;
+    batch: string;
+    enrolledStudents: {
+      id: number;
+      name: string;
+      email: string;
+      role: string;
+      status: string;
+      joinDate: string;
+    }[];
+  }
+  const [classes, setClasses] = useState<Class[]>([
+    { id: 1, name: "Chess Fundamentals", coach: "David Smith", students: 25, schedule: "Mon/Wed 6:00 PM", status: "Active", batch: "Batch A", enrolledStudents: [] },
+    { id: 2, name: "Advanced Tactics", coach: "Lisa Johnson", students: 15, schedule: "Tue/Thu 7:00 PM", status: "Active", batch: "Batch B", enrolledStudents: [] },
+    { id: 3, name: "Endgame Strategies", coach: "David Smith", students: 18, schedule: "Fri 5:00 PM", status: "Inactive", batch: "Batch C", enrolledStudents: [] },
+  ]);
   const [newClassData, setNewClassData] = useState({
     name: '',
     coach: '',
     schedule: '',
-    status: 'Pending',
-    batch: 'Batch A USA'
+    batch: ''
   });
-  const [showAssignCoachDialog, setShowAssignCoachDialog] = useState(false);
-  const [selectedDemo, setSelectedDemo] = useState<any>(null);
-  const [editingUser, setEditingUser] = useState<any>(null);
-  const [showEditUserDialog, setShowEditUserDialog] = useState(false);
-  const [showViewClassStudentsDialog, setShowViewClassStudentsDialog] = useState(false);
-  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
-  const [showEditClassDialog, setShowEditClassDialog] = useState(false);
-  const [showAddStudentsToClassDialog, setShowAddStudentsToClassDialog] = useState(false);
-  const [selectedStudentsForClass, setSelectedStudentsForClass] = useState<number[]>([]);
-  
+  const [showAddClassDialog, setShowAddClassDialog] = useState(false);
+  const [selectedStudentsForClass, setSelectedStudentsForClass] = useState([]);
+
   useEffect(() => {
     // Check if user is logged in as an admin
     const userStr = localStorage.getItem('user');
@@ -185,7 +110,7 @@ const AdminDashboard = () => {
     try {
       const userData = JSON.parse(userStr);
       if (!userData.isLoggedIn || userData.role !== 'admin') {
-        toast.error("Access denied. Please login as an administrator.");
+        toast.error("Access denied. Please login as an admin.");
         navigate('/login');
         return;
       }
@@ -202,1152 +127,311 @@ const AdminDashboard = () => {
     navigate('/');
   };
 
-  const filteredStudents = localStudents.filter(student => 
-    student.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    student.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const filteredCoaches = localCoaches.filter(coach => 
-    coach.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    coach.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const filteredClasses = localClasses.filter(cls => 
-    cls.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    cls.coach.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cls.batch.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   const handleNavigate = (section: string) => {
     setActiveSection(section);
   };
 
+  // User handlers
   const handleAddUser = () => {
-    if (!newUserData.name || !newUserData.email) {
-      toast.error("Please fill in all required fields");
-      return;
+    if (newUser.name && newUser.email) {
+      const newUserWithId = { ...newUser, id: users.length + 1, joinDate: new Date().toLocaleDateString() };
+      setUsers([...users, newUserWithId]);
+      setNewUser({ name: '', email: '', role: 'student', status: 'Active' });
+      setShowAddUserDialog(false);
+      toast.success("User added successfully!");
+    } else {
+      toast.error("Please fill in all fields");
     }
-
-    const newUser = {
-      id: Math.floor(Math.random() * 1000), 
-      name: newUserData.name,
-      email: newUserData.email,
-      role: newUserData.role,
-      status: newUserData.status,
-      joinDate: new Date().toISOString().split('T')[0],
-      specialization: newUserData.role === 'coach' ? "General" : undefined
-    };
-
-    if (newUserData.role === 'student') {
-      setLocalStudents([...localStudents, newUser]);
-    } else if (newUserData.role === 'coach') {
-      setLocalCoaches([...localCoaches, newUser]);
-    }
-
-    toast.success(`${newUserData.role === 'student' ? 'Student' : 'Coach'} added successfully`);
-    setShowAddUserDialog(false);
-    
-    // Reset form
-    setNewUserData({
-      name: '',
-      email: '',
-      role: 'student',
-      status: 'Active'
-    });
   };
 
-  const handleEditUser = () => {
-    if (!editingUser || !editingUser.name || !editingUser.email) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
-
-    if (editingUser.role === 'student') {
-      const updatedStudents = localStudents.map(student => 
-        student.id === editingUser.id ? editingUser : student
-      );
-      setLocalStudents(updatedStudents);
-    } else if (editingUser.role === 'coach') {
-      const updatedCoaches = localCoaches.map(coach => 
-        coach.id === editingUser.id ? editingUser : coach
-      );
-      setLocalCoaches(updatedCoaches);
-    }
-
-    toast.success(`${editingUser.role === 'student' ? 'Student' : 'Coach'} updated successfully`);
-    setShowEditUserDialog(false);
-    setEditingUser(null);
-  };
-
+  // Class handlers
   const handleAddClass = () => {
-    if (!newClassData.name || !newClassData.coach || !newClassData.schedule || !newClassData.batch) {
+    if (newClassData.name && newClassData.coach && newClassData.batch) {
+      const newClass = {
+        id: classes.length + 1,
+        name: newClassData.name,
+        coach: newClassData.coach,
+        students: selectedStudentsForClass.length,
+        schedule: newClassData.schedule || "Not scheduled",
+        status: "Active",
+        batch: newClassData.batch,
+        enrolledStudents: selectedStudentsForClass
+      };
+      
+      setClasses([...classes, newClass]);
+      setNewClassData({
+        name: '',
+        coach: '',
+        schedule: '',
+        batch: ''
+      });
+      setShowAddClassDialog(false);
+      setSelectedStudentsForClass([]);
+      toast.success("Class added successfully!");
+    } else {
       toast.error("Please fill in all required fields");
-      return;
     }
-
-    const newClass = {
-      id: Math.floor(Math.random() * 1000),
-      name: newClassData.name,
-      coach: newClassData.coach,
-      students: 0,
-      schedule: newClassData.schedule,
-      status: newClassData.status,
-      batch: newClassData.batch,
-      enrolledStudents: []
-    };
-
-    setLocalClasses([...localClasses, newClass]);
-    toast.success("Class added successfully");
-    setShowClassDialog(false);
-
-    // Reset form
-    setNewClassData({
-      name: '',
-      coach: '',
-      schedule: '',
-      status: 'Pending',
-      batch: 'Batch A USA'
-    });
   };
-
-  const handleAssignCoach = () => {
-    if (!selectedDemo || !selectedDemo.coachId) {
-      toast.error("Please select a coach");
-      return;
-    }
-
-    const updatedDemos = localDemoRequests.map(demo => 
-      demo.id === selectedDemo.id 
-        ? { 
-            ...demo, 
-            status: 'Assigned', 
-            coach: localCoaches.find(c => c.id === parseInt(selectedDemo.coachId))?.name || 'Unknown'
-          }
-        : demo
-    );
-
-    setLocalDemoRequests(updatedDemos);
-    toast.success("Coach assigned successfully");
-    setShowAssignCoachDialog(false);
-    setSelectedDemo(null);
-  };
-
-  const openAssignCoachDialog = (demo: any) => {
-    setSelectedDemo(demo);
-    setShowAssignCoachDialog(true);
-  };
-
-  const handleManageUser = (user: any, role: string) => {
-    setEditingUser({...user});
-    setShowEditUserDialog(true);
-  };
-
-  const handleViewClassStudents = (classItem: Class) => {
-    setSelectedClass(classItem);
-    setShowViewClassStudentsDialog(true);
-  };
-
-  const handleEditClass = () => {
-    if (!selectedClass) return;
-    
-    const updatedClasses = localClasses.map(cls => 
-      cls.id === selectedClass.id ? selectedClass : cls
-    );
-    
-    setLocalClasses(updatedClasses);
-    toast.success("Class updated successfully");
-    setShowEditClassDialog(false);
-  };
-
-  const handleManageClass = (classItem: Class) => {
-    setSelectedClass({...classItem});
-    setShowEditClassDialog(true);
-  };
-
-  const handleAddStudentsToClass = () => {
-    if (!selectedClass) return;
-    
-    const studentsToAdd = localStudents.filter(student => 
-      selectedStudentsForClass.includes(student.id)
-    );
-    
-    // Find the class to update
-    const updatedClasses = localClasses.map(cls => {
-      if (cls.id === selectedClass.id) {
-        // Create a set of IDs to avoid duplicates
-        const existingIds = new Set((cls.enrolledStudents || []).map(s => s.id));
-        const newEnrolledStudents = [...(cls.enrolledStudents || [])];
-        
-        // Add only students that aren't already in the class
-        studentsToAdd.forEach(student => {
-          if (!existingIds.has(student.id)) {
-            newEnrolledStudents.push(student);
-          }
-        });
-        
-        return {
-          ...cls,
-          students: newEnrolledStudents.length,
-          enrolledStudents: newEnrolledStudents
-        };
-      }
-      return cls;
-    });
-    
-    setLocalClasses(updatedClasses);
-    toast.success("Students added to class successfully");
-    setShowAddStudentsToClassDialog(false);
-    setSelectedStudentsForClass([]);
-  };
-
-  const openAddStudentsToClassDialog = (classItem: Class) => {
-    setSelectedClass(classItem);
-    setSelectedStudentsForClass([]);
-    setShowAddStudentsToClassDialog(true);
-  };
-
-  const handleStudentCheckboxChange = (studentId: number) => {
-    setSelectedStudentsForClass(current => {
-      if (current.includes(studentId)) {
-        return current.filter(id => id !== studentId);
-      } else {
-        return [...current, studentId];
-      }
-    });
-  };
-
-  if (!user) {
-    return <div className="min-h-screen bg-chess-deepNavy flex items-center justify-center">
-      <div className="animate-spin h-8 w-8 border-4 border-chess-blue border-t-transparent rounded-full"></div>
-    </div>;
-  }
-
-  // Menu items for the sidebar
-  const menuItems = [
-    { icon: Users, label: "User Management", section: "users", active: activeSection === "users" },
-    { icon: BookOpen, label: "Class Management", section: "classes", active: activeSection === "classes" },
-    { icon: Calendar, label: "Demo Bookings", section: "demos", active: activeSection === "demos" },
-    { icon: BarChart4, label: "Reports", section: "reports", active: activeSection === "reports" },
-    { icon: Settings, label: "Settings", section: "settings", active: activeSection === "settings" },
-  ];
 
   // Render appropriate content based on active section
   const renderContent = () => {
     switch (activeSection) {
       case "users":
         return (
-          <Card className="bg-chess-navy border-chess-blue/20">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-white">User Management</CardTitle>
-                <div className="flex items-center gap-2">
-                  <div className="relative">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
-                    <Input
-                      type="search"
-                      placeholder="Search..."
-                      className="w-64 pl-8 bg-chess-deepNavy border-chess-blue/20"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                  <Dialog open={showAddUserDialog} onOpenChange={setShowAddUserDialog}>
-                    <DialogTrigger asChild>
-                      <Button className="bg-chess-blue hover:bg-chess-blue/90">
-                        <UserPlus className="mr-2 h-4 w-4" />
-                        Add User
+          <>
+            <div className="mb-4 flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-white">Manage Users</h2>
+              <Button onClick={() => setShowAddUserDialog(true)} className="bg-chess-blue hover:bg-chess-blue/90 text-white">
+                <UserPlus className="mr-2 h-4 w-4" />
+                Add User
+              </Button>
+            </div>
+
+            <Table className="bg-chess-navy border-chess-blue/20">
+              <TableCaption>A list of all registered users.</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[100px]">Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Join Date</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">{user.name}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.role}</TableCell>
+                    <TableCell>{user.status}</TableCell>
+                    <TableCell>{user.joinDate}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm">
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
                       </Button>
-                    </DialogTrigger>
-                    <DialogContent className="bg-chess-navy border-chess-blue/20 text-white">
-                      <DialogHeader>
-                        <DialogTitle>Add New User</DialogTitle>
-                        <DialogDescription className="text-gray-400">
-                          Fill in the details to add a new user to the platform.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="name" className="text-right">
-                            Name
-                          </Label>
-                          <Input
-                            id="name"
-                            value={newUserData.name}
-                            onChange={(e) => setNewUserData({...newUserData, name: e.target.value})}
-                            className="col-span-3 bg-chess-deepNavy border-chess-blue/20"
-                          />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="email" className="text-right">
-                            Email
-                          </Label>
-                          <Input
-                            id="email"
-                            type="email"
-                            value={newUserData.email}
-                            onChange={(e) => setNewUserData({...newUserData, email: e.target.value})}
-                            className="col-span-3 bg-chess-deepNavy border-chess-blue/20"
-                          />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="role" className="text-right">
-                            Role
-                          </Label>
-                          <Select 
-                            value={newUserData.role}
-                            onValueChange={(value) => setNewUserData({...newUserData, role: value})}
-                          >
-                            <SelectTrigger className="col-span-3 bg-chess-deepNavy border-chess-blue/20">
-                              <SelectValue placeholder="Select role" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-chess-navy border-chess-blue/20">
-                              <SelectItem value="student">Student</SelectItem>
-                              <SelectItem value="coach">Coach</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="status" className="text-right">
-                            Status
-                          </Label>
-                          <Select 
-                            value={newUserData.status}
-                            onValueChange={(value) => setNewUserData({...newUserData, status: value})}
-                          >
-                            <SelectTrigger className="col-span-3 bg-chess-deepNavy border-chess-blue/20">
-                              <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-chess-navy border-chess-blue/20">
-                              <SelectItem value="Active">Active</SelectItem>
-                              <SelectItem value="Inactive">Inactive</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button variant="outline" onClick={() => setShowAddUserDialog(false)} className="border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10">
-                          Cancel
-                        </Button>
-                        <Button onClick={handleAddUser} className="bg-chess-blue hover:bg-chess-blue/90">
-                          Add User
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
+                      <Button variant="ghost" size="sm">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+
+            <Dialog open={showAddUserDialog} onOpenChange={setShowAddUserDialog}>
+              <DialogContent className="bg-chess-navy border-chess-blue/20 text-white">
+                <DialogHeader>
+                  <DialogTitle>Add New User</DialogTitle>
+                  <DialogDescription>Create a new user account.</DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Name</Label>
+                      <Input
+                        id="name"
+                        value={newUser.name}
+                        onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                        placeholder="User's name"
+                        className="bg-chess-deepNavy border-chess-blue/20"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        value={newUser.email}
+                        onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                        placeholder="User's email"
+                        className="bg-chess-deepNavy border-chess-blue/20"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="role">Role</Label>
+                      <Select onValueChange={(value) => setNewUser({ ...newUser, role: value })}>
+                        <SelectTrigger className="bg-chess-deepNavy border-chess-blue/20">
+                          <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-chess-deepNavy border-chess-blue/20 text-white">
+                          <SelectItem value="student">Student</SelectItem>
+                          <SelectItem value="coach">Coach</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="status">Status</Label>
+                      <Select onValueChange={(value) => setNewUser({ ...newUser, status: value })}>
+                        <SelectTrigger className="bg-chess-deepNavy border-chess-blue/20">
+                          <SelectValue placeholder="Select a status" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-chess-deepNavy border-chess-blue/20 text-white">
+                          <SelectItem value="Active">Active</SelectItem>
+                          <SelectItem value="Inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="bg-chess-deepNavy grid w-full md:w-auto md:inline-flex grid-cols-3">
-                  <TabsTrigger value="students">Students</TabsTrigger>
-                  <TabsTrigger value="coaches">Coaches</TabsTrigger>
-                  <TabsTrigger value="classes">Classes</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="students" className="mt-4">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="hover:bg-chess-deepNavy/60">
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Join Date</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredStudents.map(student => (
-                        <TableRow key={student.id} className="hover:bg-chess-deepNavy/60">
-                          <TableCell className="font-medium">{student.name}</TableCell>
-                          <TableCell>{student.email}</TableCell>
-                          <TableCell>
-                            <span className={`px-2 py-1 rounded-full text-xs ${
-                              student.status === 'Active' 
-                                ? 'bg-green-900/20 text-green-400' 
-                                : 'bg-amber-900/20 text-amber-400'
-                            }`}>
-                              {student.status}
-                            </span>
-                          </TableCell>
-                          <TableCell>{new Date(student.joinDate).toLocaleDateString()}</TableCell>
-                          <TableCell className="text-right">
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8"
-                              onClick={() => handleManageUser(student, 'student')}
-                            >
-                              <UserCog className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TabsContent>
-                
-                <TabsContent value="coaches" className="mt-4">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="hover:bg-chess-deepNavy/60">
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Specialization</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Join Date</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredCoaches.map(coach => (
-                        <TableRow key={coach.id} className="hover:bg-chess-deepNavy/60">
-                          <TableCell className="font-medium">{coach.name}</TableCell>
-                          <TableCell>{coach.email}</TableCell>
-                          <TableCell>{coach.specialization}</TableCell>
-                          <TableCell>
-                            <span className="px-2 py-1 rounded-full text-xs bg-green-900/20 text-green-400">
-                              {coach.status}
-                            </span>
-                          </TableCell>
-                          <TableCell>{new Date(coach.joinDate).toLocaleDateString()}</TableCell>
-                          <TableCell className="text-right">
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8"
-                              onClick={() => handleManageUser(coach, 'coach')}
-                            >
-                              <UserCog className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TabsContent>
-                
-                <TabsContent value="classes" className="mt-4">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="hover:bg-chess-deepNavy/60">
-                        <TableHead>Class Name</TableHead>
-                        <TableHead>Coach</TableHead>
-                        <TableHead>Students</TableHead>
-                        <TableHead>Schedule</TableHead>
-                        <TableHead>Batch</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredClasses.map(cls => (
-                        <TableRow key={cls.id} className="hover:bg-chess-deepNavy/60">
-                          <TableCell className="font-medium">{cls.name}</TableCell>
-                          <TableCell>{cls.coach}</TableCell>
-                          <TableCell>{cls.students}</TableCell>
-                          <TableCell>{cls.schedule}</TableCell>
-                          <TableCell>{cls.batch}</TableCell>
-                          <TableCell>
-                            <span className={`px-2 py-1 rounded-full text-xs ${
-                              cls.status === 'Active' 
-                                ? 'bg-green-900/20 text-green-400' 
-                                : 'bg-amber-900/20 text-amber-400'
-                            }`}>
-                              {cls.status}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8"
-                              onClick={() => handleManageUser(cls, 'class')}
-                            >
-                              <UserCog className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setShowAddUserDialog(false)} className="border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10">
+                    Cancel
+                  </Button>
+                  <Button onClick={handleAddUser} className="bg-chess-blue hover:bg-chess-blue/90">
+                    Add User
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </>
         );
-      
       case "classes":
         return (
-          <Card className="bg-chess-navy border-chess-blue/20">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-white">Class Management</CardTitle>
-                <div className="flex items-center gap-2">
-                  <div className="relative">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
-                    <Input
-                      type="search"
-                      placeholder="Search by name, coach or batch..."
-                      className="w-64 pl-8 bg-chess-deepNavy border-chess-blue/20"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                  <Dialog open={showClassDialog} onOpenChange={setShowClassDialog}>
-                    <DialogTrigger asChild>
-                      <Button className="bg-chess-blue hover:bg-chess-blue/90">
-                        <BookOpen className="mr-2 h-4 w-4" />
-                        Add Class
+          <>
+            <div className="mb-4 flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-white">Manage Classes</h2>
+              <Button onClick={() => setShowAddClassDialog(true)} className="bg-chess-blue hover:bg-chess-blue/90 text-white">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Class
+              </Button>
+            </div>
+
+            <Table className="bg-chess-navy border-chess-blue/20">
+              <TableCaption>A list of all available classes.</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[100px]">Name</TableHead>
+                  <TableHead>Coach</TableHead>
+                  <TableHead>Students</TableHead>
+                  <TableHead>Schedule</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Batch</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {classes.map((cls) => (
+                  <TableRow key={cls.id}>
+                    <TableCell className="font-medium">{cls.name}</TableCell>
+                    <TableCell>{cls.coach}</TableCell>
+                    <TableCell>{cls.students}</TableCell>
+                    <TableCell>{cls.schedule}</TableCell>
+                    <TableCell>{cls.status}</TableCell>
+                    <TableCell>{cls.batch}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm">
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
                       </Button>
-                    </DialogTrigger>
-                    <DialogContent className="bg-chess-navy border-chess-blue/20 text-white">
-                      <DialogHeader>
-                        <DialogTitle>Create New Class</DialogTitle>
-                        <DialogDescription className="text-gray-400">
-                          Fill in the details to create a new chess class.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="className" className="text-right">
-                            Class Name
-                          </Label>
-                          <Input
-                            id="className"
-                            value={newClassData.name}
-                            onChange={(e) => setNewClassData({...newClassData, name: e.target.value})}
-                            className="col-span-3 bg-chess-deepNavy border-chess-blue/20"
-                          />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="batch" className="text-right">
-                            Batch
-                          </Label>
-                          <Select 
-                            value={newClassData.batch}
-                            onValueChange={(value) => setNewClassData({...newClassData, batch: value})}
-                          >
-                            <SelectTrigger className="col-span-3 bg-chess-deepNavy border-chess-blue/20">
-                              <SelectValue placeholder="Select batch" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-chess-navy border-chess-blue/20">
-                              <SelectItem value="Batch A USA">Batch A USA</SelectItem>
-                              <SelectItem value="Batch B USA">Batch B USA</SelectItem>
-                              <SelectItem value="Batch C USA">Batch C USA</SelectItem>
-                              <SelectItem value="Batch A UAE">Batch A UAE</SelectItem>
-                              <SelectItem value="Batch B UAE">Batch B UAE</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="coach" className="text-right">
-                            Coach
-                          </Label>
-                          <Select 
-                            value={newClassData.coach}
-                            onValueChange={(value) => setNewClassData({...newClassData, coach: value})}
-                          >
-                            <SelectTrigger className="col-span-3 bg-chess-deepNavy border-chess-blue/20">
-                              <SelectValue placeholder="Select coach" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-chess-navy border-chess-blue/20">
-                              {localCoaches.map(coach => (
-                                <SelectItem key={coach.id} value={coach.name}>{coach.name}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="schedule" className="text-right">
-                            Schedule
-                          </Label>
-                          <Input
-                            id="schedule"
-                            placeholder="e.g., Mon, Wed 5:00 PM"
-                            value={newClassData.schedule}
-                            onChange={(e) => setNewClassData({...newClassData, schedule: e.target.value})}
-                            className="col-span-3 bg-chess-deepNavy border-chess-blue/20"
-                          />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="status" className="text-right">
-                            Status
-                          </Label>
-                          <Select 
-                            value={newClassData.status}
-                            onValueChange={(value) => setNewClassData({...newClassData, status: value})}
-                          >
-                            <SelectTrigger className="col-span-3 bg-chess-deepNavy border-chess-blue/20">
-                              <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-chess-navy border-chess-blue/20">
-                              <SelectItem value="Active">Active</SelectItem>
-                              <SelectItem value="Pending">Pending</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button variant="outline" onClick={() => setShowClassDialog(false)} className="border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10">
-                          Cancel
-                        </Button>
-                        <Button onClick={handleAddClass} className="bg-chess-blue hover:bg-chess-blue/90">
-                          Create Class
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {filteredClasses.map(cls => (
-                  <Card key={cls.id} className="bg-chess-deepNavy border-chess-blue/20">
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="text-white text-xl">{cls.name}</CardTitle>
-                          <CardDescription>Coach: {cls.coach}</CardDescription>
-                        </div>
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          cls.status === 'Active' 
-                            ? 'bg-green-900/20 text-green-400' 
-                            : 'bg-amber-900/20 text-amber-400'
-                        }`}>
-                          {cls.status}
-                        </span>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <p className="text-sm text-gray-400">Schedule</p>
-                          <p className="text-white">{cls.schedule}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-400">Students Enrolled</p>
-                          <p className="text-white">{cls.students}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-400">Batch</p>
-                          <p className="text-white">{cls.batch}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                    <CardFooter className="flex justify-end gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10"
-                        onClick={() => handleViewClassStudents(cls)}
-                      >
-                        View Students
+                      <Button variant="ghost" size="sm">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10"
-                        onClick={() => openAddStudentsToClassDialog(cls)}
-                      >
-                        Add Students
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        className="bg-chess-blue hover:bg-chess-blue/90"
-                        onClick={() => handleManageClass(cls)}
-                      >
-                        Manage Class
-                      </Button>
-                    </CardFooter>
-                  </Card>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </div>
+              </TableBody>
+            </Table>
 
-              {/* View Class Students Dialog */}
-              <Dialog open={showViewClassStudentsDialog} onOpenChange={setShowViewClassStudentsDialog}>
-                <DialogContent className="bg-chess-navy border-chess-blue/20 text-white">
-                  <DialogHeader>
-                    <DialogTitle>{selectedClass?.name} - Enrolled Students</DialogTitle>
-                    <DialogDescription className="text-gray-400">
-                      Students currently enrolled in this class
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="py-4">
-                    {selectedClass?.enrolledStudents && selectedClass.enrolledStudents.length > 0 ? (
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="hover:bg-chess-deepNavy/60">
-                            <TableHead>Name</TableHead>
-                            <TableHead>Email</TableHead>
-                            <TableHead>Status</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {selectedClass.enrolledStudents.map((student) => (
-                            <TableRow key={student.id} className="hover:bg-chess-deepNavy/60">
-                              <TableCell className="font-medium">{student.name}</TableCell>
-                              <TableCell>{student.email}</TableCell>
-                              <TableCell>
-                                <span className={`px-2 py-1 rounded-full text-xs ${
-                                  student.status === 'Active' 
-                                    ? 'bg-green-900/20 text-green-400' 
-                                    : 'bg-amber-900/20 text-amber-400'
-                                }`}>
-                                  {student.status}
-                                </span>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    ) : (
-                      <div className="text-center py-4 text-gray-400">No students enrolled in this class yet</div>
-                    )}
-                  </div>
-                  <DialogFooter>
-                    <Button onClick={() => setShowViewClassStudentsDialog(false)} className="bg-chess-blue hover:bg-chess-blue/90">
-                      Close
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-
-              {/* Edit Class Dialog */}
-              <Dialog open={showEditClassDialog} onOpenChange={setShowEditClassDialog}>
-                <DialogContent className="bg-chess-navy border-chess-blue/20 text-white">
-                  <DialogHeader>
-                    <DialogTitle>Edit Class</DialogTitle>
-                    <DialogDescription className="text-gray-400">
-                      Update class details
-                    </DialogDescription>
-                  </DialogHeader>
-                  {selectedClass && (
-                    <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="edit-className" className="text-right">
-                          Class Name
-                        </Label>
-                        <Input
-                          id="edit-className"
-                          value={selectedClass.name}
-                          onChange={(e) => setSelectedClass({...selectedClass, name: e.target.value})}
-                          className="col-span-3 bg-chess-deepNavy border-chess-blue/20"
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="edit-batch" className="text-right">
-                          Batch
-                        </Label>
-                        <Select 
-                          value={selectedClass.batch}
-                          onValueChange={(value) => setSelectedClass({...selectedClass, batch: value})}
-                        >
-                          <SelectTrigger className="col-span-3 bg-chess-deepNavy border-chess-blue/20">
-                            <SelectValue placeholder="Select batch" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-chess-navy border-chess-blue/20">
-                            <SelectItem value="Batch A USA">Batch A USA</SelectItem>
-                            <SelectItem value="Batch B USA">Batch B USA</SelectItem>
-                            <SelectItem value="Batch C USA">Batch C USA</SelectItem>
-                            <SelectItem value="Batch A UAE">Batch A UAE</SelectItem>
-                            <SelectItem value="Batch B UAE">Batch B UAE</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="edit-coach" className="text-right">
-                          Coach
-                        </Label>
-                        <Select 
-                          value={selectedClass.coach}
-                          onValueChange={(value) => setSelectedClass({...selectedClass, coach: value})}
-                        >
-                          <SelectTrigger className="col-span-3 bg-chess-deepNavy border-chess-blue/20">
-                            <SelectValue placeholder="Select coach" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-chess-navy border-chess-blue/20">
-                            {localCoaches.map(coach => (
-                              <SelectItem key={coach.id} value={coach.name}>{coach.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="edit-schedule" className="text-right">
-                          Schedule
-                        </Label>
-                        <Input
-                          id="edit-schedule"
-                          value={selectedClass.schedule}
-                          onChange={(e) => setSelectedClass({...selectedClass, schedule: e.target.value})}
-                          className="col-span-3 bg-chess-deepNavy border-chess-blue/20"
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="edit-status" className="text-right">
-                          Status
-                        </Label>
-                        <Select 
-                          value={selectedClass.status}
-                          onValueChange={(value) => setSelectedClass({...selectedClass, status: value})}
-                        >
-                          <SelectTrigger className="col-span-3 bg-chess-deepNavy border-chess-blue/20">
-                            <SelectValue placeholder="Select status" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-chess-navy border-chess-blue/20">
-                            <SelectItem value="Active">Active</SelectItem>
-                            <SelectItem value="Pending">Pending</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  )}
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setShowEditClassDialog(false)} className="border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10">
-                      Cancel
-                    </Button>
-                    <Button onClick={handleEditClass} className="bg-chess-blue hover:bg-chess-blue/90">
-                      Save Changes
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-
-              {/* Add Students to Class Dialog */}
-              <Dialog open={showAddStudentsToClassDialog} onOpenChange={setShowAddStudentsToClassDialog}>
-                <DialogContent className="bg-chess-navy border-chess-blue/20 text-white">
-                  <DialogHeader>
-                    <DialogTitle>Add Students to {selectedClass?.name}</DialogTitle>
-                    <DialogDescription className="text-gray-400">
-                      Select students to add to this class
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="py-4 max-h-[400px] overflow-y-auto">
+            <Dialog open={showAddClassDialog} onOpenChange={setShowAddClassDialog}>
+              <DialogContent className="bg-chess-navy border-chess-blue/20 text-white">
+                <DialogHeader>
+                  <DialogTitle>Add New Class</DialogTitle>
+                  <DialogDescription>Create a new class and assign students.</DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                  <div className="space-y-4">
                     <div className="space-y-2">
-                      {localStudents.map((student) => {
-                        // Check if student is already enrolled
-                        const isEnrolled = selectedClass?.enrolledStudents?.some(s => s.id === student.id);
-                        
-                        return (
-                          <div key={student.id} className="flex items-center space-x-2">
-                            <Checkbox 
-                              id={`student-${student.id}`}
-                              checked={selectedStudentsForClass.includes(student.id)}
-                              onCheckedChange={() => handleStudentCheckboxChange(student.id)}
-                              disabled={isEnrolled}
-                            />
-                            <label
-                              htmlFor={`student-${student.id}`}
-                              className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2 ${
-                                isEnrolled ? 'text-gray-400' : 'text-white'
-                              }`}
+                      <Label htmlFor="name">Name</Label>
+                      <Input
+                        id="name"
+                        value={newClassData.name}
+                        onChange={(e) => setNewClassData({ ...newClassData, name: e.target.value })}
+                        placeholder="Class name"
+                        className="bg-chess-deepNavy border-chess-blue/20"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="coach">Coach</Label>
+                      <Input
+                        id="coach"
+                        value={newClassData.coach}
+                        onChange={(e) => setNewClassData({ ...newClassData, coach: e.target.value })}
+                        placeholder="Coach's name"
+                        className="bg-chess-deepNavy border-chess-blue/20"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="schedule">Schedule</Label>
+                      <Input
+                        id="schedule"
+                        value={newClassData.schedule}
+                        onChange={(e) => setNewClassData({ ...newClassData, schedule: e.target.value })}
+                        placeholder="e.g., Mon/Wed 6:00 PM"
+                        className="bg-chess-deepNavy border-chess-blue/20"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="batch">Batch</Label>
+                      <Input
+                        id="batch"
+                        value={newClassData.batch}
+                        onChange={(e) => setNewClassData({ ...newClassData, batch: e.target.value })}
+                        placeholder="Batch name"
+                        className="bg-chess-deepNavy border-chess-blue/20"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Enroll Students</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {users
+                          .filter((user) => user.role === 'student')
+                          .map((student) => (
+                            <Button
+                              key={student.id}
+                              variant={selectedStudentsForClass.find((s) => s.id === student.id) ? 'default' : 'outline'}
+                              onClick={() => {
+                                if (selectedStudentsForClass.find((s) => s.id === student.id)) {
+                                  setSelectedStudentsForClass(selectedStudentsForClass.filter((s) => s.id !== student.id));
+                                } else {
+                                  setSelectedStudentsForClass([...selectedStudentsForClass, student]);
+                                }
+                              }}
                             >
                               {student.name}
-                              {isEnrolled && <span className="text-xs text-chess-blue">(Already enrolled)</span>}
-                            </label>
-                          </div>
-                        );
-                      })}
+                            </Button>
+                          ))}
+                      </div>
                     </div>
                   </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setShowAddStudentsToClassDialog(false)} className="border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10">
-                      Cancel
-                    </Button>
-                    <Button 
-                      onClick={handleAddStudentsToClass} 
-                      className="bg-chess-blue hover:bg-chess-blue/90"
-                      disabled={selectedStudentsForClass.length === 0}
-                    >
-                      Add Selected Students
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </CardContent>
-          </Card>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setShowAddClassDialog(false)} className="border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10">
+                    Cancel
+                  </Button>
+                  <Button onClick={handleAddClass} className="bg-chess-blue hover:bg-chess-blue/90">
+                    Add Class
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </>
         );
-
-      case "demos":
-        return (
-          <Card className="bg-chess-navy border-chess-blue/20">
-            <CardHeader>
-              <CardTitle className="text-white">Demo Booking Requests</CardTitle>
-              <CardDescription>Assign coaches to demo sessions</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {localDemoRequests.map(demo => (
-                  <Card key={demo.id} className="bg-chess-deepNavy border-chess-blue/20">
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="text-white text-lg">{demo.name}</CardTitle>
-                          <CardDescription>{demo.email}</CardDescription>
-                        </div>
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          demo.status === 'Assigned' 
-                            ? 'bg-green-900/20 text-green-400' 
-                            : 'bg-amber-900/20 text-amber-400'
-                        }`}>
-                          {demo.status}
-                        </span>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <p className="text-sm text-gray-400">Date</p>
-                          <p className="text-white">{new Date(demo.date).toLocaleDateString()}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-400">Time</p>
-                          <p className="text-white">{demo.time}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-400">Assigned Coach</p>
-                          <p className="text-white">{demo.coach || 'Not assigned'}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                    <CardFooter className="flex justify-end gap-2">
-                      {demo.status === 'Pending' && (
-                        <Button 
-                          className="bg-chess-blue hover:bg-chess-blue/90"
-                          onClick={() => openAssignCoachDialog(demo)}
-                        >
-                          Assign Coach
-                        </Button>
-                      )}
-                      {demo.status === 'Assigned' && (
-                        <Button 
-                          variant="outline" 
-                          className="border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10"
-                          onClick={() => toast.success(`Viewing details for ${demo.name}'s demo`)}
-                        >
-                          View Details
-                        </Button>
-                      )}
-                    </CardFooter>
-                  </Card>
-                ))}
-
-                <Dialog open={showAssignCoachDialog} onOpenChange={setShowAssignCoachDialog}>
-                  <DialogContent className="bg-chess-navy border-chess-blue/20 text-white">
-                    <DialogHeader>
-                      <DialogTitle>Assign Coach to Demo</DialogTitle>
-                      <DialogDescription className="text-gray-400">
-                        Select a coach to conduct this demo session.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="py-4">
-                      {selectedDemo && (
-                        <div className="mb-4 p-3 bg-chess-deepNavy rounded-lg">
-                          <p><strong>Student:</strong> {selectedDemo.name}</p>
-                          <p><strong>Date:</strong> {new Date(selectedDemo.date).toLocaleDateString()}</p>
-                          <p><strong>Time:</strong> {selectedDemo.time}</p>
-                        </div>
-                      )}
-                      <div className="space-y-2">
-                        <Label htmlFor="coach">Select Coach</Label>
-                        <Select 
-                          onValueChange={(value) => setSelectedDemo({...selectedDemo, coachId: value})}
-                        >
-                          <SelectTrigger className="bg-chess-deepNavy border-chess-blue/20">
-                            <SelectValue placeholder="Choose a coach" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-chess-navy border-chess-blue/20">
-                            {localCoaches.map(coach => (
-                              <SelectItem key={coach.id} value={coach.id.toString()}>{coach.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button variant="outline" onClick={() => setShowAssignCoachDialog(false)} className="border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10">
-                        Cancel
-                      </Button>
-                      <Button onClick={handleAssignCoach} className="bg-chess-blue hover:bg-chess-blue/90">
-                        Assign Coach
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </CardContent>
-          </Card>
-        );
-
-      case "reports":
-        return (
-          <Card className="bg-chess-navy border-chess-blue/20">
-            <CardHeader>
-              <CardTitle className="text-white">Analytics & Reports</CardTitle>
-              <CardDescription>View insights about your chess school</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <h3 className="text-lg font-medium text-white mb-4">Monthly Revenue</h3>
-                <div className="grid grid-cols-4 gap-4">
-                  {revenueData.map(month => (
-                    <Card key={month.month} className="bg-chess-deepNavy border-chess-blue/20">
-                      <CardContent className="pt-6">
-                        <p className="text-sm text-gray-400">{month.month}</p>
-                        <p className="text-2xl font-bold text-chess-blue">${month.amount}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <h3 className="text-lg font-medium text-white mb-4">User Statistics</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card className="bg-chess-deepNavy border-chess-blue/20">
-                    <CardContent className="pt-6">
-                      <p className="text-sm text-gray-400">Total Students</p>
-                      <p className="text-2xl font-bold text-chess-blue">{localStudents.length}</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="bg-chess-deepNavy border-chess-blue/20">
-                    <CardContent className="pt-6">
-                      <p className="text-sm text-gray-400">Total Coaches</p>
-                      <p className="text-2xl font-bold text-chess-blue">{localCoaches.length}</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="bg-chess-deepNavy border-chess-blue/20">
-                    <CardContent className="pt-6">
-                      <p className="text-sm text-gray-400">Active Classes</p>
-                      <p className="text-2xl font-bold text-chess-blue">{localClasses.filter(c => c.status === 'Active').length}</p>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-lg font-medium text-white mb-4">Monthly Report</h3>
-                <Button className="bg-chess-blue hover:bg-chess-blue/90" onClick={() => toast.success("Generating monthly report")}>
-                  <SquarePen className="mr-2 h-4 w-4" />
-                  Generate Report
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        );
-
-      case "settings":
-        return (
-          <Card className="bg-chess-navy border-chess-blue/20">
-            <CardHeader>
-              <CardTitle className="text-white">System Settings</CardTitle>
-              <CardDescription>Manage application preferences</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium text-white mb-2">Account Information</h3>
-                  <p className="text-gray-400 mb-4">Update your administrator account details</p>
-                  <Button className="bg-chess-blue hover:bg-chess-blue/90" onClick={() => toast.success("Account settings dialog would open here")}>Edit Profile</Button>
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-white mb-2">Security Settings</h3>
-                  <p className="text-gray-400 mb-4">Manage password and security preferences</p>
-                  <Button className="bg-chess-blue hover:bg-chess-blue/90" onClick={() => toast.success("Security settings dialog would open here")}>Security Settings</Button>
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-white mb-2">Notification Preferences</h3>
-                  <p className="text-gray-400 mb-4">Control how you receive alerts and notifications</p>
-                  <Button className="bg-chess-blue hover:bg-chess-blue/90" onClick={() => toast.success("Notification settings dialog would open here")}>Notification Settings</Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        );
-
       default:
         return null;
     }
   };
 
-  // Add the Edit User Dialog
-  const editUserDialog = (
-    <Dialog open={showEditUserDialog} onOpenChange={setShowEditUserDialog}>
-      <DialogContent className="bg-chess-navy border-chess-blue/20 text-white">
-        <DialogHeader>
-          <DialogTitle>Edit {editingUser?.role === 'student' ? 'Student' : 'Coach'}</DialogTitle>
-          <DialogDescription className="text-gray-400">
-            Update user information
-          </DialogDescription>
-        </DialogHeader>
-        {editingUser && (
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-name" className="text-right">
-                Name
-              </Label>
-              <Input
-                id="edit-name"
-                value={editingUser.name}
-                onChange={(e) => setEditingUser({...editingUser, name: e.target.value})}
-                className="col-span-3 bg-chess-deepNavy border-chess-blue/20"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-email" className="text-right">
-                Email
-              </Label>
-              <Input
-                id="edit-email"
-                type="email"
-                value={editingUser.email}
-                onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
-                className="col-span-3 bg-chess-deepNavy border-chess-blue/20"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-status" className="text-right">
-                Status
-              </Label>
-              <Select 
-                value={editingUser.status}
-                onValueChange={(value) => setEditingUser({...editingUser, status: value})}
-              >
-                <SelectTrigger className="col-span-3 bg-chess-deepNavy border-chess-blue/20">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent className="bg-chess-navy border-chess-blue/20">
-                  <SelectItem value="Active">Active</SelectItem>
-                  <SelectItem value="Inactive">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {editingUser.role === 'coach' && (
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="edit-specialization" className="text-right">
-                  Specialization
-                </Label>
-                <Input
-                  id="edit-specialization"
-                  value={editingUser.specialization}
-                  onChange={(e) => setEditingUser({...editingUser, specialization: e.target.value})}
-                  className="col-span-3 bg-chess-deepNavy border-chess-blue/20"
-                />
-              </div>
-            )}
-          </div>
-        )}
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setShowEditUserDialog(false)} className="border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10">
-            Cancel
-          </Button>
-          <Button onClick={handleEditUser} className="bg-chess-blue hover:bg-chess-blue/90">
-            Save Changes
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
+  // Menu items for the sidebar
+  const menuItems = [
+    { icon: Users, label: "Manage Users", section: "users" },
+    { icon: Calendar, label: "Manage Classes", section: "classes" },
+  ];
 
   return (
     <SidebarProvider>
@@ -1364,8 +448,8 @@ const AdminDashboard = () => {
             <SidebarMenu>
               {menuItems.map((item, index) => (
                 <SidebarMenuItem key={index}>
-                  <SidebarMenuButton 
-                    isActive={item.active}
+                  <SidebarMenuButton
+                    isActive={activeSection === item.section}
                     onClick={() => handleNavigate(item.section)}
                   >
                     <item.icon className="w-5 h-5" />
@@ -1377,7 +461,22 @@ const AdminDashboard = () => {
           </SidebarContent>
           <SidebarFooter>
             <Button variant="ghost" className="w-full justify-start text-gray-400 hover:text-white" onClick={handleLogout}>
-              <LogOut className="w-5 h-5 mr-2" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-log-out w-5 h-5 mr-2"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" x2="9" y1="12" y2="12"></line>
+              </svg>
               <span>Logout</span>
             </Button>
           </SidebarFooter>
@@ -1390,7 +489,7 @@ const AdminDashboard = () => {
               <h1 className="text-xl font-semibold">Admin Dashboard</h1>
               <div className="flex items-center gap-4">
                 <span className="text-sm text-gray-400">Welcome,</span>
-                <span className="font-medium">{user.name}</span>
+                <span className="font-medium">{user?.name}</span>
                 <Button variant="outline" size="sm" className="border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10" onClick={handleLogout}>
                   Logout
                 </Button>
@@ -1399,52 +498,7 @@ const AdminDashboard = () => {
           </header>
 
           <main className="flex-1 p-6 overflow-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <Card className="bg-chess-navy border-chess-blue/20">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg text-white">Total Students</CardTitle>
-                  <CardDescription>Active and inactive students</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-chess-blue">{localStudents.length}</div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-chess-navy border-chess-blue/20">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg text-white">Total Coaches</CardTitle>
-                  <CardDescription>Active teaching staff</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-chess-blue">{localCoaches.length}</div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-chess-navy border-chess-blue/20">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg text-white">Classes</CardTitle>
-                  <CardDescription>Active and pending classes</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-chess-blue">{localClasses.length}</div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-chess-navy border-chess-blue/20">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg text-white">Monthly Revenue</CardTitle>
-                  <CardDescription>Current month earnings</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-chess-blue">${revenueData[3].amount}</div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6">
-              {renderContent()}
-              {editUserDialog}
-            </div>
+            {renderContent()}
           </main>
         </div>
       </div>
