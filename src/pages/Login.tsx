@@ -18,17 +18,22 @@ const Login = () => {
     setShowLogin(true);
   };
 
-  // Mock user data with expanded options
+  // Mock user data with expanded options and Indian names
   const mockUsers = {
     students: [
       { email: "student1@gmail.com", password: "student1", name: "Alex Morgan" },
       { email: "student2@gmail.com", password: "student2", name: "Jamie Taylor" },
-      { email: "student3@gmail.com", password: "student3", name: "Chris Johnson" }
+      { email: "student3@gmail.com", password: "student3", name: "Chris Johnson" },
+      { email: "rahul@gmail.com", password: "rahul123", name: "Rahul Sharma" },
+      { email: "priya@gmail.com", password: "priya123", name: "Priya Patel" },
+      { email: "arjun@gmail.com", password: "arjun123", name: "Arjun Singh" }
     ],
     coaches: [
       { email: "coach1@gmail.com", password: "coach1", name: "David Smith" },
       { email: "coach2@gmail.com", password: "coach2", name: "Lisa Johnson" },
-      { email: "coach3@gmail.com", password: "coach3", name: "Michael Chen" }
+      { email: "coach3@gmail.com", password: "coach3", name: "Michael Chen" },
+      { email: "ananya@gmail.com", password: "ananya123", name: "Ananya Gupta" },
+      { email: "vikram@gmail.com", password: "vikram123", name: "Vikram Reddy" }
     ],
     admins: [
       { email: "admin1@gmail.com", password: "admin1", name: "Admin User" },
@@ -76,14 +81,6 @@ const Login = () => {
                 : 'Create your account and start your chess journey today'
               }
             </p>
-            {showLogin && (
-              <div className="mt-4 text-sm text-gray-400 p-3 bg-chess-deepNavy rounded-lg">
-                <p className="font-semibold mb-1">Demo Accounts:</p>
-                <p><strong>Student:</strong> student1@gmail.com / student1</p>
-                <p><strong>Coach:</strong> coach1@gmail.com / coach1</p>
-                <p><strong>Admin:</strong> admin1@gmail.com / admin1</p>
-              </div>
-            )}
           </div>
 
           {showLogin ? (
