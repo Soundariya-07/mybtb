@@ -78,7 +78,10 @@ const Login = () => {
             </p>
             {showLogin && (
               <div className="mt-4 text-sm text-gray-400 p-3 bg-chess-deepNavy rounded-lg">
-                
+                <p className="font-semibold mb-1">Demo Accounts:</p>
+                <p><strong>Student:</strong> student1@gmail.com / student1</p>
+                <p><strong>Coach:</strong> coach1@gmail.com / coach1</p>
+                <p><strong>Admin:</strong> admin1@gmail.com / admin1</p>
               </div>
             )}
           </div>
