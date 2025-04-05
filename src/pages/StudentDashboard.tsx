@@ -10,10 +10,9 @@ import {
   LogOut,
   BarChart,
   CheckCircle,
-  XCircle,
   Send,
   Users,
-  MessageCircle
+  User
 } from 'lucide-react';
 import { toast } from "sonner";
 import { 
@@ -131,7 +130,7 @@ const StudentDashboard = () => {
   const [activeConversation, setActiveConversation] = useState<number | null>(null);
   const [messageText, setMessageText] = useState("");
   
-  const [messages, setMessages] = useState<Record<number, any[]>>({
+  const [messages, setMessages] = useState({
     1: [
       { id: 1, sender: "David Smith", text: "Hello Alex! How is your progress with the knight endgame exercises?", time: "10:30 AM", isMine: false },
       { id: 2, sender: "You", text: "I'm still working through them. The third position is challenging!", time: "10:32 AM", isMine: true },
@@ -208,9 +207,9 @@ const StudentDashboard = () => {
     setShowAssignmentDialog(false);
   };
   
-  // Handle sending a new message
+  // Handle sending a new message in conversation
   const handleSendMessage = () => {
-    if (!messageText.trim() || !activeConversation) return;
+    if (!messageText.trim() || activeConversation === null) return;
     
     const newMessage = {
       id: messages[activeConversation]?.length + 1 || 1,
@@ -240,12 +239,11 @@ const StudentDashboard = () => {
   
   // Start a new conversation
   const handleStartNewConversation = () => {
-    setNewMessageData(prev => ({
-      ...prev,
+    setNewMessageData({
       recipient: '',
       subject: '',
       message: ''
-    }));
+    });
     setShowMessageDialog(true);
   };
   
@@ -256,7 +254,7 @@ const StudentDashboard = () => {
       return;
     }
     
-    const newConvId = Math.max(...Object.keys(messages).map(Number)) + 1;
+    const newConvId = Math.max(...conversations.map(c => c.id), 0) + 1;
     
     // Add new conversation
     setConversations(prev => [
@@ -428,8 +426,8 @@ const StudentDashboard = () => {
                         setShowMessageDialog(true);
                         setNewMessageData(prev => ({
                           ...prev, 
-                          recipient: selectedClass.coach,
-                          subject: `Question about ${selectedClass.topic} class`
+                          recipient: selectedClass?.coach || "",
+                          subject: `Question about ${selectedClass?.topic || ""} class`
                         }));
                         setShowClassDetailDialog(false);
                       }}
@@ -541,7 +539,7 @@ const StudentDashboard = () => {
                     </div>
                   )}
                   <DialogFooter>
-                    {!selectedAssignment?.completed ? (
+                    {selectedAssignment && !selectedAssignment.completed ? (
                       <Button 
                         className="bg-chess-blue hover:bg-chess-blue/90"
                         onClick={handleSubmitAssignment}
@@ -660,7 +658,7 @@ const StudentDashboard = () => {
                       className="w-full bg-chess-blue hover:bg-chess-blue/90"
                       onClick={handleStartNewConversation}
                     >
-                      <MessageCircle className="mr-2 h-4 w-4" />
+                      <MessageSquare className="mr-2 h-4 w-4" />
                       New Message
                     </Button>
                   </div>
@@ -689,7 +687,7 @@ const StudentDashboard = () => {
                                 </div>
                               ) : (
                                 <div className="w-10 h-10 rounded-full bg-chess-blue/30 flex items-center justify-center">
-                                  <MessageCircle className="h-5 w-5 text-chess-blue" />
+                                  <User className="h-5 w-5 text-chess-blue" />
                                 </div>
                               )}
                             </div>
@@ -772,64 +770,68 @@ const StudentDashboard = () => {
                   ) : (
                     <div className="flex-1 flex items-center justify-center p-4">
                       <div className="text-center">
-                        <MessageSquare className="h-12 w-12 text-chess-blue/40 mx-auto mb-4" />
-                        <h3 className="text-white font-medium mb-2">No Conversation Selected</h3>
-                        <p className="text-sm text-gray-400">Choose a conversation from the list or start a new one.</p>
+                        <MessageSquare className="h-12 w-12 text-chess-blue/50 mx-auto mb-4" />
+                        <h3 className="text-white text-lg font-medium mb-2">No conversation selected</h3>
+                        <p className="text-gray-400">Select a conversation from the list or start a new one</p>
+                        <Button 
+                          className="mt-4 bg-chess-blue hover:bg-chess-blue/90"
+                          onClick={handleStartNewConversation}
+                        >
+                          Start a Conversation
+                        </Button>
                       </div>
                     </div>
                   )}
                 </div>
               </div>
               
-              {/* Dialog for starting a new conversation */}
               <Dialog open={showMessageDialog} onOpenChange={setShowMessageDialog}>
                 <DialogContent className="bg-chess-navy border-chess-blue/20 text-white">
                   <DialogHeader>
                     <DialogTitle>New Message</DialogTitle>
+                    <DialogDescription className="text-gray-400">
+                      Send a message to your coach or group
+                    </DialogDescription>
                   </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div>
-                      <Label htmlFor="recipient" className="text-sm text-gray-400">
-                        To:
-                      </Label>
-                      <Input 
-                        id="recipient" 
-                        value={newMessageData.recipient}
-                        onChange={e => setNewMessageData(prev => ({ ...prev, recipient: e.target.value }))}
-                        placeholder="Enter recipient name"
-                        className="bg-chess-deepNavy border-chess-blue/20 mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="subject" className="text-sm text-gray-400">
-                        Subject (optional):
-                      </Label>
-                      <Input 
-                        id="subject"
-                        value={newMessageData.subject}
-                        onChange={e => setNewMessageData(prev => ({ ...prev, subject: e.target.value }))}
-                        placeholder="Enter subject"
-                        className="bg-chess-deepNavy border-chess-blue/20 mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="message" className="text-sm text-gray-400">
-                        Message:
-                      </Label>
-                      <Textarea 
-                        id="message"
-                        value={newMessageData.message}
-                        onChange={e => setNewMessageData(prev => ({ ...prev, message: e.target.value }))}
-                        placeholder="Type your message..."
-                        className="bg-chess-deepNavy border-chess-blue/20 h-32 mt-1"
-                      />
+                  <div className="py-4">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="recipient">To</Label>
+                        <Input
+                          id="recipient"
+                          value={newMessageData.recipient}
+                          onChange={(e) => setNewMessageData({...newMessageData, recipient: e.target.value})}
+                          placeholder="Coach name or group name"
+                          className="bg-chess-deepNavy border-chess-blue/20"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="subject">Subject (optional)</Label>
+                        <Input
+                          id="subject"
+                          value={newMessageData.subject}
+                          onChange={(e) => setNewMessageData({...newMessageData, subject: e.target.value})}
+                          placeholder="Subject"
+                          className="bg-chess-deepNavy border-chess-blue/20"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="message">Message</Label>
+                        <Textarea
+                          id="message"
+                          value={newMessageData.message}
+                          onChange={(e) => setNewMessageData({...newMessageData, message: e.target.value})}
+                          placeholder="Type your message here..."
+                          className="bg-chess-deepNavy border-chess-blue/20 h-24"
+                        />
+                      </div>
                     </div>
                   </div>
                   <DialogFooter>
                     <Button 
                       variant="outline" 
                       onClick={() => setShowMessageDialog(false)}
-                      className="border-chess-blue/20 text-gray-300 hover:bg-chess-deepNavy"
+                      className="border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10"
                     >
                       Cancel
                     </Button>
@@ -837,6 +839,7 @@ const StudentDashboard = () => {
                       className="bg-chess-blue hover:bg-chess-blue/90"
                       onClick={handleCreateConversation}
                     >
+                      <Send className="mr-2 h-4 w-4" />
                       Send Message
                     </Button>
                   </DialogFooter>
@@ -849,233 +852,102 @@ const StudentDashboard = () => {
         return (
           <Card className="bg-chess-navy border-chess-blue/20">
             <CardHeader>
-              <CardTitle className="text-white">Settings</CardTitle>
-              <CardDescription>Manage your account preferences</CardDescription>
+              <CardTitle className="text-white">Account Settings</CardTitle>
+              <CardDescription>Manage your profile and preferences</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {/* User Profile Section */}
                 <div>
-                  <h3 className="text-lg font-medium text-white mb-4">Your Profile</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="display-name" className="text-sm text-gray-400">
-                        Display Name
-                      </Label>
-                      <Input 
-                        id="display-name" 
-                        defaultValue={user.name} 
-                        className="bg-chess-deepNavy border-chess-blue/20 mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email" className="text-sm text-gray-400">
-                        Email Address
-                      </Label>
-                      <Input 
-                        id="email" 
-                        type="email" 
-                        defaultValue={user.email} 
-                        className="bg-chess-deepNavy border-chess-blue/20 mt-1"
-                      />
-                    </div>
-                    <Button 
-                      className="bg-chess-blue hover:bg-chess-blue/90"
-                      onClick={() => toast.success("Profile updated successfully!")}
-                    >
-                      Update Profile
-                    </Button>
-                  </div>
+                  <h3 className="text-lg font-medium text-white mb-2">Profile Information</h3>
+                  <p className="text-gray-400 mb-4">Update your personal details and preferences</p>
+                  <Button 
+                    className="bg-chess-blue hover:bg-chess-blue/90"
+                    onClick={() => toast.success("Profile edit dialog would open here")}
+                  >
+                    Edit Profile
+                  </Button>
                 </div>
-                
-                {/* Notification Preferences */}
                 <div>
-                  <h3 className="text-lg font-medium text-white mb-4">Notification Preferences</h3>
-                  <div className="space-y-2">
-                    {/* Notification settings (simplified example) */}
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="email-notifs" className="cursor-pointer text-white">
-                        Email Notifications
-                      </Label>
-                      <input 
-                        type="checkbox" 
-                        id="email-notifs" 
-                        className="w-4 h-4 text-chess-blue bg-chess-deepNavy border-chess-blue/50 rounded focus:ring-chess-blue" 
-                        defaultChecked
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="class-reminders" className="cursor-pointer text-white">
-                        Class Reminders
-                      </Label>
-                      <input 
-                        type="checkbox" 
-                        id="class-reminders" 
-                        className="w-4 h-4 text-chess-blue bg-chess-deepNavy border-chess-blue/50 rounded focus:ring-chess-blue" 
-                        defaultChecked
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="assignment-notifs" className="cursor-pointer text-white">
-                        Assignment Notifications
-                      </Label>
-                      <input 
-                        type="checkbox" 
-                        id="assignment-notifs" 
-                        className="w-4 h-4 text-chess-blue bg-chess-deepNavy border-chess-blue/50 rounded focus:ring-chess-blue" 
-                        defaultChecked
-                      />
-                    </div>
-                    <Button 
-                      className="mt-4 bg-chess-blue hover:bg-chess-blue/90"
-                      onClick={() => toast.success("Notification preferences saved!")}
-                    >
-                      Save Preferences
-                    </Button>
-                  </div>
+                  <h3 className="text-lg font-medium text-white mb-2">Notification Settings</h3>
+                  <p className="text-gray-400 mb-4">Manage how you receive notifications</p>
+                  <Button 
+                    className="bg-chess-blue hover:bg-chess-blue/90"
+                    onClick={() => toast.success("Notification settings dialog would open here")}
+                  >
+                    Notification Settings
+                  </Button>
                 </div>
-                
-                {/* Password Update Section */}
                 <div>
-                  <h3 className="text-lg font-medium text-white mb-4">Change Password</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="current-password" className="text-sm text-gray-400">
-                        Current Password
-                      </Label>
-                      <Input 
-                        id="current-password" 
-                        type="password" 
-                        placeholder="Enter current password"
-                        className="bg-chess-deepNavy border-chess-blue/20 mt-1" 
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="new-password" className="text-sm text-gray-400">
-                        New Password
-                      </Label>
-                      <Input 
-                        id="new-password" 
-                        type="password" 
-                        placeholder="Enter new password"
-                        className="bg-chess-deepNavy border-chess-blue/20 mt-1" 
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="confirm-password" className="text-sm text-gray-400">
-                        Confirm New Password
-                      </Label>
-                      <Input 
-                        id="confirm-password" 
-                        type="password" 
-                        placeholder="Confirm new password" 
-                        className="bg-chess-deepNavy border-chess-blue/20 mt-1"
-                      />
-                    </div>
-                    <Button 
-                      className="bg-chess-blue hover:bg-chess-blue/90"
-                      onClick={() => toast.success("Password updated successfully!")}
-                    >
-                      Change Password
-                    </Button>
-                  </div>
-                </div>
-                
-                {/* Account Actions */}
-                <div>
-                  <h3 className="text-lg font-medium text-white mb-4">Account Actions</h3>
-                  <div className="space-x-4">
-                    <Button 
-                      variant="outline"
-                      className="border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10"
-                      onClick={() => toast.info("This feature is coming soon!")}
-                    >
-                      Download My Data
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="border-red-500/20 text-red-500 hover:bg-red-500/10"
-                      onClick={handleLogout}
-                    >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Logout
-                    </Button>
-                  </div>
+                  <h3 className="text-lg font-medium text-white mb-2">Password & Security</h3>
+                  <p className="text-gray-400 mb-4">Update your password and security settings</p>
+                  <Button 
+                    className="bg-chess-blue hover:bg-chess-blue/90"
+                    onClick={() => toast.success("Security settings dialog would open here")}
+                  >
+                    Security Settings
+                  </Button>
                 </div>
               </div>
             </CardContent>
           </Card>
         );
       default:
-        return (
-          <Card className="bg-chess-navy border-chess-blue/20">
-            <CardHeader>
-              <CardTitle className="text-white">Welcome to Your Dashboard</CardTitle>
-              <CardDescription>Select a section from the sidebar to get started</CardDescription>
-            </CardHeader>
-            <CardContent className="text-gray-300">
-              <p>Use the sidebar navigation to access your classes, assignments, progress tracking, and messages.</p>
-            </CardContent>
-          </Card>
-        );
+        return null;
     }
   };
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <Sidebar>
-          <SidebarHeader className="px-6 border-b border-chess-blue/10">
-            <div className="flex flex-col items-center">
-              <h1 className="text-xl font-bold text-white">
+      <div className="min-h-screen flex w-full bg-chess-deepNavy text-white">
+        <Sidebar className="bg-chess-navy border-r border-chess-blue/20">
+          <SidebarHeader className="py-4 px-6 border-b border-chess-blue/20">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-bold">
                 <span className="text-chess-blue">Beyond</span>TheBoard
-              </h1>
-              <p className="text-xs text-gray-400">Student Dashboard</p>
+              </span>
             </div>
           </SidebarHeader>
-          <SidebarContent className="p-2">
+          <SidebarContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.section} active={item.active}>
-                  <SidebarMenuButton onClick={() => handleNavigate(item.section)}>
-                    <item.icon className="h-5 w-5" />
+              {menuItems.map((item, index) => (
+                <SidebarMenuItem key={index.toString()}>
+                  <SidebarMenuButton 
+                    isActive={item.active} 
+                    onClick={() => handleNavigate(item.section)}
+                  >
+                    <item.icon className="w-5 h-5" />
                     <span>{item.label}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
           </SidebarContent>
-          <SidebarFooter className="p-4 border-t border-chess-blue/10">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-chess-blue/30 flex items-center justify-center text-xl font-bold text-white">
-                {user.name.charAt(0)}
-              </div>
-              <div>
-                <p className="text-white font-medium">{user.name}</p>
-                <p className="text-xs text-gray-400">{user.email}</p>
-              </div>
-            </div>
-            <Button 
-              variant="outline" 
-              className="mt-4 w-full border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10"
-              onClick={handleLogout}
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
+          <SidebarFooter>
+            <Button variant="ghost" className="w-full justify-start text-gray-400 hover:text-white" onClick={handleLogout}>
+              <LogOut className="w-5 h-5 mr-2" />
+              <span>Logout</span>
             </Button>
           </SidebarFooter>
         </Sidebar>
-        
-        <div className="flex-1 p-6 md:p-10 space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-white">Welcome, {user.name}</h1>
-              <p className="text-gray-400">Here's what's happening with your chess journey</p>
-            </div>
+
+        <div className="flex-1 flex flex-col">
+          <header className="bg-chess-navy h-16 shadow-md flex items-center px-4 sm:px-6 border-b border-chess-blue/20">
             <SidebarTrigger />
-          </div>
-          
-          {renderContent()}
+            <div className="flex-1 flex justify-between items-center">
+              <h1 className="text-xl font-semibold">Student Dashboard</h1>
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-400">Welcome,</span>
+                <span className="font-medium">{user.name}</span>
+                <Button variant="outline" size="sm" className="border-chess-blue/20 text-chess-blue hover:bg-chess-blue/10" onClick={handleLogout}>
+                  Logout
+                </Button>
+              </div>
+            </div>
+          </header>
+
+          <main className="flex-1 p-6 overflow-auto">
+            {renderContent()}
+          </main>
         </div>
       </div>
     </SidebarProvider>

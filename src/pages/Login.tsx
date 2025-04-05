@@ -33,7 +33,8 @@ const Login = () => {
       { email: "coach2@gmail.com", password: "coach2", name: "Lisa Johnson" },
       { email: "coach3@gmail.com", password: "coach3", name: "Michael Chen" },
       { email: "ananya@gmail.com", password: "ananya123", name: "Ananya Gupta" },
-      { email: "vikram@gmail.com", password: "vikram123", name: "Vikram Reddy" }
+      { email: "vikram@gmail.com", password: "vikram123", name: "Vikram Reddy" },
+      { email: "gmsoundariyalakshmi@gmail.com", password: "chesscoach", name: "Soundariya Lakshmi" }
     ],
     admins: [
       { email: "admin1@gmail.com", password: "admin1", name: "Admin User" },

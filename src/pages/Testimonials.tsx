@@ -9,42 +9,42 @@ const testimonials = [
     content: "BeyondTheBoard has completely transformed my approach to chess. The personalized coaching has helped me increase my rating by over 300 points in just six months.",
     name: "Vikram Reddy",
     title: "FIDE Rating 2100+",
-    avatar: "/lovable-uploads/f4184eb7-c262-47fc-9d1e-fe309c2ebdf6.png"
+    avatar: "/lovable-uploads/f4184eb7-c262-47fc-9d1e-fe309c2ebdf6.png" // Male image
   },
   {
     id: 2,
     content: "The group classes are engaging and the coaches make complex concepts easy to understand. My daughter loves the interactive sessions and the global community.",
     name: "Priya Patel",
     title: "Parent of a chess prodigy",
-    avatar: "/lovable-uploads/9051c81a-ebc3-4a44-bc96-0a0b7d627393.png"
+    avatar: "/lovable-uploads/9051c81a-ebc3-4a44-bc96-0a0b7d627393.png" // Female image
   },
   {
     id: 3,
     content: "As a beginner, I was intimidated by chess, but the coaches at BeyondTheBoard created such a welcoming environment. Now I play confidently and understand the game deeply.",
     name: "Rahul Sharma",
     title: "Beginner turned enthusiast",
-    avatar: "/lovable-uploads/e6abee08-2d7f-423b-8d9e-d6d18d1600f3.png"
+    avatar: "/lovable-uploads/f4184eb7-c262-47fc-9d1e-fe309c2ebdf6.png" // Male image
   },
   {
     id: 4,
     content: "The one-on-one coaching I've received at BeyondTheBoard has been exceptional. My coach identifies my weaknesses and gives me targeted exercises that have rapidly improved my endgame play.",
     name: "Ananya Gupta",
     title: "Tournament player",
-    avatar: "/lovable-uploads/9051c81a-ebc3-4a44-bc96-0a0b7d627393.png"
+    avatar: "/lovable-uploads/9051c81a-ebc3-4a44-bc96-0a0b7d627393.png" // Female image
   },
   {
     id: 5,
     content: "I've tried several online chess platforms, but the quality of instruction at BeyondTheBoard is unmatched. The coaches don't just teach moves; they instill a deep understanding of chess principles.",
     name: "Arjun Singh",
     title: "Intermediate player",
-    avatar: "/lovable-uploads/f4184eb7-c262-47fc-9d1e-fe309c2ebdf6.png"
+    avatar: "/lovable-uploads/f4184eb7-c262-47fc-9d1e-fe309c2ebdf6.png" // Male image
   },
   {
     id: 6,
     content: "My son has been taking classes for just three months, and he's already competing confidently in local tournaments. The coaches make learning chess fun and engaging for kids.",
     name: "Neha Gupta",
     title: "Parent",
-    avatar: "/lovable-uploads/9051c81a-ebc3-4a44-bc96-0a0b7d627393.png"
+    avatar: "/lovable-uploads/9051c81a-ebc3-4a44-bc96-0a0b7d627393.png" // Female image with a child's photo
   }
 ];
 
